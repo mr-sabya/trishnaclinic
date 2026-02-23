@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class HomeController extends Controller
+class AuthController extends Controller
 {
     //
-    public function index()
+    public function login()
     {
-        return view('backend.home.index');
+        return view('backend.auth.login');
     }
 }

@@ -29,10 +29,8 @@
     <!-- JAVASCRIPT -->
     <script data-navigate-once src="{{ asset('assets/backend/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script data-navigate-once src="{{ asset('assets/backend/libs/simplebar/simplebar.min.js') }}"></script>
-    <script data-navigate-once src="{{ asset('assets/backend/js/pages/plugins/lord-icon-2.1.0.js') }}"></script>
     <script data-navigate-once src="{{ asset('assets/backend/js/plugins.js') }}"></script>
 
-    <script data-navigate-once src="{{ asset('assets/backend/js/pages/password-addon.init.js') }}"></script>
     @livewireScripts
 </body>
 

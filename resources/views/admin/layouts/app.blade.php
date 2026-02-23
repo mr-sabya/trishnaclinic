@@ -39,8 +39,8 @@
     <!-- Begin page -->
     <div id="layout-wrapper">
 
-        <livewire:theme.tagbar />
-        <livewire:theme.header />
+        <livewire:admin.theme.tagbar />
+        <livewire:admin.theme.header />
 
         <!-- removeNotificationModal -->
         <div id="removeNotificationModal" class="modal fade zoomIn" tabindex="-1" aria-hidden="true">
@@ -73,7 +73,7 @@
 
 
         <!-- ========== App Menu ========== -->
-        <livewire:theme.sidebar />
+        <livewire:admin.theme.sidebar />
         <!-- Left Sidebar End -->
         <!-- Vertical Overlay-->
         <div class="vertical-overlay"></div>

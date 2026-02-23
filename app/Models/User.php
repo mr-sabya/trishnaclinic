@@ -64,4 +64,10 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
+
+    // staff relationship
+    public function staff()
+    {
+        return $this->hasOne(Staff::class);
+    }
 }
