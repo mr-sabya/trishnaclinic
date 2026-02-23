@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -20,7 +22,10 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone', // Add this
         'password',
+        'role',
+        'is_active',
     ];
 
     /**
@@ -43,6 +48,20 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class, // Auto-converts string to Enum
+            'is_active' => 'boolean',
         ];
+    }
+
+
+    // Simple Role Check Helpers
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, [UserRole::SUPER_ADMIN, UserRole::ADMIN]);
+    }
+
+    public function hasRole(UserRole $role): bool
+    {
+        return $this->role === $role;
     }
 }
