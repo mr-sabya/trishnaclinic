@@ -188,7 +188,7 @@
 
     <div class="container">
         <div class="logo">
-            <i class="fas fa-hand-holding-medical"></i>Trishna Clinic
+            <img src="{{ url('assets/frontend/logo.png') }}" alt="Trishna Clinic Logo" style="width: 300px;">
         </div>
 
         <h1>Coming Soon</h1>
