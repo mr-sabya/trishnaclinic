@@ -19,4 +19,26 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
 
     // admin department index
     Route::get('/admin-departments', [\App\Http\Controllers\Admin\DepartmentController::class, 'adminDepartmentIndex'])->name('admin-departments.index');
+
+    // tpa
+    Route::get('/tpa', [\App\Http\Controllers\Admin\TpaController::class, 'index'])->name('tpa.index');
+
+    // patient
+    Route::get('/patients', [\App\Http\Controllers\Admin\PatientController::class, 'index'])->name('patient.index');
+
+    // create patient
+    Route::get('/patients/create', [\App\Http\Controllers\Admin\PatientController::class, 'create'])->name('patient.create');
+
+    // edit patient
+    Route::get('/patients/{id}/edit', [\App\Http\Controllers\Admin\PatientController::class, 'edit'])->name('patient.edit');
+
+    // charge
+    Route::prefix('charge')->name('charge.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ChargeController::class, 'charge'])->name('index');
+        Route::get('/unit', [\App\Http\Controllers\Admin\ChargeController::class, 'unit'])->name('unit');
+        Route::get('/tax-categories', [\App\Http\Controllers\Admin\ChargeController::class, 'taxCategories'])->name('tax-categories');
+        Route::get('/charge-types', [\App\Http\Controllers\Admin\ChargeController::class, 'chargeTypes'])->name('charge-types');
+        Route::get('/charge-categories', [\App\Http\Controllers\Admin\ChargeController::class, 'chargeCategories'])->name('charge-categories');
+        Route::get('/tpa-charges', [\App\Http\Controllers\Admin\ChargeController::class, 'tpaCharges'])->name('tpa-charges');
+    });
 });

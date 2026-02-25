@@ -63,11 +63,67 @@
                     </div>
                 </li>
 
-                <!-- testimonial -->
+                <!-- tpa -->
                 <li class="nav-item">
-                    <a class="nav-link menu-link " href="">
-                        <i class="bi bi-chat-quote"></i> <span data-key="t-testimonials">Testimonials</span>
+                    <a class="nav-link menu-link {{ Route::is('admin.tpa.*') ? 'active' : '' }}" href="{{ route('admin.tpa.index') }}" wire:navigate>
+                        <i class="bi bi-credit-card"></i> <span data-key="t-tpa">TPA</span>
                     </a>
+                </li>
+
+                <!-- patient -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.patient.*') ? 'active' : '' }}" href="{{ route('admin.patient.index') }}" wire:navigate>
+                        <i class="bi bi-person"></i> <span data-key="t-patient">Patient</span>
+                    </a>
+                </li>
+
+                <!-- Billing & Charges Link -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.charge.*') ? 'active' : 'collapsed' }}" href="#chargeManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.charge.*') ? 'true' : 'false' }}" aria-controls="chargeManage">
+                        <i class="bi bi-wallet2"></i> <span data-key="t-charges">Billing & Charges</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.charge.*') ? 'show' : '' }}" id="chargeManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.index') }}" class="nav-link {{ Route::is('admin.charge.index') ? 'active' : '' }}" wire:navigate>
+                                    Charge Master
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.charge-types') }}" class="nav-link {{ Route::is('admin.charge.charge-types') ? 'active' : '' }}" wire:navigate>
+                                    Charge Types
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.charge-categories') }}" class="nav-link {{ Route::is('admin.charge.charge-categories') ? 'active' : '' }}" wire:navigate>
+                                    Categories
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.unit') }}" class="nav-link {{ Route::is('admin.charge.unit') ? 'active' : '' }}" wire:navigate>
+                                    Units
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.tax-categories') }}" class="nav-link {{ Route::is('admin.charge.tax-categories') ? 'active' : '' }}" wire:navigate>
+                                    Tax Categories
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.charge.tpa-charges') }}" class="nav-link {{ Route::is('admin.charge.tpa-charges') ? 'active' : '' }}" wire:navigate>
+                                    TPA Price List
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
                 </li>
 
             </ul>
