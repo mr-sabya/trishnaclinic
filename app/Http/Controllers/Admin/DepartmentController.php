@@ -12,4 +12,10 @@ class DepartmentController extends Controller
     {
         return view('admin.department.admin-department');
     }
+
+    // medical department index
+    public function medicalDepartmentIndex()
+    {
+        return view('admin.department.medical-department');
+    }
 }

@@ -41,4 +41,21 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/charge-categories', [\App\Http\Controllers\Admin\ChargeController::class, 'chargeCategories'])->name('charge-categories');
         Route::get('/tpa-charges', [\App\Http\Controllers\Admin\ChargeController::class, 'tpaCharges'])->name('tpa-charges');
     });
+
+
+    // Medical Departments Group
+    Route::prefix('departments')->group(function () {
+        Route::get('/medical-departments', [\App\Http\Controllers\Admin\DepartmentController::class, 'medicalDepartmentIndex'])->name('medical-departments.index');
+    });
+
+    // Doctor & Specialist Management Group
+    Route::prefix('doctors')->group(function () {
+        // Specialist Master
+        Route::get('/specialist', [\App\Http\Controllers\Admin\DoctorController::class, 'specialist'])->name('specialist.index');
+
+        // Doctor CRUD
+        Route::get('/', [\App\Http\Controllers\Admin\DoctorController::class, 'index'])->name('doctor.index');
+        Route::get('/create', [\App\Http\Controllers\Admin\DoctorController::class, 'create'])->name('doctor.create');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\DoctorController::class, 'edit'])->name('doctor.edit');
+    });
 });

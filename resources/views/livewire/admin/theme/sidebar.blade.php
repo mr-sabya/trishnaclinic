@@ -126,6 +126,37 @@
                     </div>
                 </li>
 
+
+                <!-- Doctor Management -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.doctor.*') || Route::is('admin.medical-departments.*') || Route::is('admin.specialist.*') ? 'active' : 'collapsed' }}" href="#doctorManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.doctor.*') || Route::is('admin.medical-departments.*') || Route::is('admin.specialist.*') ? 'true' : 'false' }}" aria-controls="doctorManage">
+                        <i class="bi bi-person-badge"></i> <span data-key="t-doctors">Doctor Management</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.doctor.*') || Route::is('admin.medical-departments.*') || Route::is('admin.specialist.*') ? 'show' : '' }}" id="doctorManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.doctor.index') }}" class="nav-link {{ Route::is('admin.doctor.index') || Route::is('admin.doctor.create') || Route::is('admin.doctor.edit') ? 'active' : '' }}" wire:navigate>
+                                    Doctor List
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.medical-departments.index') }}" class="nav-link {{ Route::is('admin.medical-departments.index') ? 'active' : '' }}" wire:navigate>
+                                    Medical Departments
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.specialist.index') }}" class="nav-link {{ Route::is('admin.specialist.index') ? 'active' : '' }}" wire:navigate>
+                                    Specialist
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
         <!-- Sidebar -->
