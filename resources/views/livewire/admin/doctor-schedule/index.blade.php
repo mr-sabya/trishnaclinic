@@ -1,7 +1,7 @@
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-calendar-check me-2"></i>Doctor Schedules</h5>
-        <a href="{{ route('admin.appointment.doctor-schedules.manage') }}" wire:navigate class="btn btn-primary btn-sm px-3">
+        <a href="{{ route('admin.doctor-schedules.create') }}" wire:navigate class="btn btn-primary btn-sm px-3">
             <i class="ri-add-line"></i> Add Schedule
         </a>
     </div>

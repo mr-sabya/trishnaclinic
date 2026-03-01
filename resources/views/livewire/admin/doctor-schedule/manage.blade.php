@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="col-12 mt-4 text-end">
-                    <a href="{{ route('admin.appointment.doctor-schedules.index') }}" wire:navigate class="btn btn-light me-2">Cancel</a>
+                    <a href="{{ route('admin.doctor-schedules.index') }}" wire:navigate class="btn btn-light me-2">Cancel</a>
                     <button type="submit" class="btn btn-primary px-5">Save Schedule</button>
                 </div>
             </div>
