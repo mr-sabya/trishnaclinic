@@ -157,6 +157,33 @@
                         </ul>
                     </div>
                 </li>
+
+                <!-- Appointment & Schedule Management -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.globalshift.*') || Route::is('admin.doctor-schedules.*') ? 'active' : 'collapsed' }}" href="#scheduleManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.globalshift.*') || Route::is('admin.doctor-schedules.*') ? 'true' : 'false' }}" aria-controls="scheduleManage">
+                        <i class="bi bi-calendar3"></i> <span data-key="t-schedules">Doctor Schedule</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.globalshift.*') || Route::is('admin.doctor-schedules.*') ? 'show' : '' }}" id="scheduleManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <!-- Global Shift -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.globalshift.index') }}" class="nav-link {{ Route::is('admin.globalshift.index') ? 'active' : '' }}" wire:navigate>
+                                    Global Shift
+                                </a>
+                            </li>
+
+                            <!-- Doctor Schedules -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.doctor-schedules.index') }}" class="nav-link {{ Route::is('admin.doctor-schedules.*') ? 'active' : '' }}" wire:navigate>
+                                    Doctor Schedule List
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </div>
         <!-- Sidebar -->

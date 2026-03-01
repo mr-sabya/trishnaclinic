@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('global_shifts', function (Blueprint $table) {
             $table->id();
+            $table->string('name'); // Morning, Evening, Night
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
         });
     }

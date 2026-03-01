@@ -58,4 +58,14 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/create', [\App\Http\Controllers\Admin\DoctorController::class, 'create'])->name('doctor.create');
         Route::get('/{id}/edit', [\App\Http\Controllers\Admin\DoctorController::class, 'edit'])->name('doctor.edit');
     });
+
+    // global shift
+    Route::get('/global-shift', [\App\Http\Controllers\Admin\ShiftController::class, 'globalShift'])->name('globalshift.index');
+
+    // doctor-schedules
+    Route::prefix('doctor-schedules')->name('doctor-schedules.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ShiftController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
+        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
+    });
 });
