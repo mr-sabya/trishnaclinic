@@ -49,7 +49,7 @@
                                 </span>
                             </td>
                             <td class="text-end">
-                                <a href="{{ route('admin.doctors.manage', $doctor->id) }}" wire:navigate class="btn btn-sm btn-outline-primary me-1"><i class="ri-pencil-line"></i></a>
+                                <a href="{{ route('admin.doctor.edit', $doctor->id) }}" wire:navigate class="btn btn-sm btn-outline-primary me-1"><i class="ri-pencil-line"></i></a>
                                 <button onclick="confirm('Delete doctor record?') || event.stopImmediatePropagation()" wire:click="delete({{ $doctor->id }})" class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line"></i></button>
                             </td>
                         </tr>
