@@ -68,4 +68,25 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/create', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
         Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
     });
+
+    // appointment
+    Route::prefix('appointment')->name('appointment.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AppointmentController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\AppointmentController::class, 'create'])->name('create');
+        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\AppointmentController::class, 'create'])->name('create');
+    });
+
+    // Symptom Management Group
+    Route::prefix('symptoms')->group(function () {
+        Route::get('/types', [\App\Http\Controllers\Admin\SymptomController::class, 'SymptomType'])->name('symptom-types.index');
+        Route::get('/titles', [\App\Http\Controllers\Admin\SymptomController::class, 'SymptomTitle'])->name('symptom-titles.index');
+    });
+
+
+    Route::prefix('opd')->name('opd.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\OpdController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Admin\OpdController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\OpdController::class, 'edit'])->name('edit');
+        Route::get('/{id}/show', [App\Http\Controllers\Admin\OpdController::class, 'show'])->name('show');
+    });
 });

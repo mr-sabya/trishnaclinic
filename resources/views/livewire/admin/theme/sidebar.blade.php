@@ -158,7 +158,7 @@
                     </div>
                 </li>
 
-                <!-- Appointment & Schedule Management -->
+                <!--Schedule Management -->
                 <li class="nav-item">
                     <a class="nav-link menu-link {{ Route::is('admin.globalshift.*') || Route::is('admin.doctor-schedules.*') ? 'active' : 'collapsed' }}" href="#scheduleManage" data-bs-toggle="collapse" role="button"
                         aria-expanded="{{ Route::is('admin.globalshift.*') || Route::is('admin.doctor-schedules.*') ? 'true' : 'false' }}" aria-controls="scheduleManage">
@@ -181,6 +181,81 @@
                                 </a>
                             </li>
 
+                        </ul>
+                    </div>
+                </li>
+                <!-- Appointment-->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.appointment.*') ? 'active' : 'collapsed' }}" href="#appointmentManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.appointment.*') ? 'true' : 'false' }}" aria-controls="appointmentManage">
+                        <i class="bi bi-calendar3"></i> <span data-key="t-appointment">Appointments</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.appointment.*') ? 'show' : '' }}" id="appointmentManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <!-- appointment -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.appointment.index') }}" class="nav-link {{ Route::is('admin.appointment.index') ? 'active' : '' }}" wire:navigate>
+                                    Appointment
+                                </a>
+                            </li>
+
+                            <!-- Doctor Schedules -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.doctor-schedules.index') }}" class="nav-link {{ Route::is('admin.doctor-schedules.*') ? 'active' : '' }}" wire:navigate>
+                                    Doctor Schedule List
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Symptom Management -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.symptom-types.*') || Route::is('admin.symptom-titles.*') ? 'active' : 'collapsed' }}" href="#symptomManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.symptom-types.*') || Route::is('admin.symptom-titles.*') ? 'true' : 'false' }}" aria-controls="symptomManage">
+                        <i class="bi bi-clipboard-pulse"></i> <span data-key="t-symptoms">Symptom Management</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.symptom-types.*') || Route::is('admin.symptom-titles.*') ? 'show' : '' }}" id="symptomManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <!-- Symptom Types -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.symptom-types.index') }}" class="nav-link {{ Route::is('admin.symptom-types.index') ? 'active' : '' }}" wire:navigate>
+                                    Symptom Types
+                                </a>
+                            </li>
+
+                            <!-- Symptom Titles -->
+                            <li class="nav-item">
+                                <a href="{{ route('admin.symptom-titles.index') }}" class="nav-link {{ Route::is('admin.symptom-titles.index') ? 'active' : '' }}" wire:navigate>
+                                    Symptom Titles
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- OPD Out-Patient -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.opd.*') ? 'active' : 'collapsed' }}" href="#opdManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.opd.*') ? 'true' : 'false' }}" aria-controls="opdManage">
+                        <i class="bi bi-person-lines-fill"></i> <span data-key="t-opd">OPD (Out-Patient)</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.opd.*') ? 'show' : '' }}" id="opdManage">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.opd.index') }}" class="nav-link {{ Route::is('admin.opd.index') ? 'active' : '' }}" wire:navigate>
+                                    OPD Patient List
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.opd.create') }}" class="nav-link {{ Route::is('admin.opd.create') ? 'active' : '' }}" wire:navigate>
+                                    Admit Patient
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
