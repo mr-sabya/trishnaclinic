@@ -12,4 +12,22 @@ class PathologyController extends Controller
     {
         return view('admin.pathology.unit');
     }
+
+    // category
+    public function category()
+    {
+        return view('admin.pathology.category');    
+    }
+
+    // parameter
+    public function parameter()
+    {
+        return view('admin.pathology.parameter');    
+    }
+
+    // parameter
+    public function test()
+    {
+        return view('admin.pathology.test');    
+    }
 }

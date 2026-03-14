@@ -76,7 +76,7 @@
     <!-- Modal -->
     @if($showModal)
     <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog">
             <div class="modal-content shadow-lg">
                 <div class="modal-header">
                     <h5 class="modal-title">{{ $deptId ? 'Edit Department' : 'Create Department' }}</h5>

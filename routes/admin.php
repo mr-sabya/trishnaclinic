@@ -92,6 +92,9 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
 
     Route::prefix('pathology')->name('pathology.')->group(function () {
         Route::get('/units', [\App\Http\Controllers\Admin\PathologyController::class, 'unit'])->name('unit');
+        Route::get('/categories', [\App\Http\Controllers\Admin\PathologyController::class, 'category'])->name('category');
+        Route::get('/parameters', [\App\Http\Controllers\Admin\PathologyController::class, 'parameter'])->name('parameter');
+        Route::get('/tests', [\App\Http\Controllers\Admin\PathologyController::class, 'test'])->name('test');
         
     });
 });

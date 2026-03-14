@@ -268,15 +268,28 @@
                     </a>
                     <div class="collapse menu-dropdown {{ Route::is('admin.pathology.*') ? 'show' : '' }}" id="pathologyManage">
                         <ul class="nav nav-sm flex-column">
-
                             <li class="nav-item">
                                 <a href="{{ route('admin.pathology.unit') }}" class="nav-link {{ Route::is('admin.pathology.unit') ? 'active' : '' }}" wire:navigate>
                                     Pathology Units
                                 </a>
                             </li>
-
                             
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pathology.category') }}" class="nav-link {{ Route::is('admin.pathology.category') ? 'active' : '' }}" wire:navigate>
+                                    Pathology Categories
+                                </a>
+                            </li>
 
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pathology.parameter') }}" class="nav-link {{ Route::is('admin.pathology.parameter') ? 'active' : '' }}" wire:navigate>
+                                    Pathology Parameters
+                                </a>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pathology.test') }}" class="nav-link {{ Route::is('admin.pathology.test') ? 'active' : '' }}" wire:navigate>
+                                    Pathology Tests
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>

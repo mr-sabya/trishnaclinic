@@ -179,7 +179,7 @@
     <!-- MODAL: ADD CHARGE -->
     @if($showChargeModal)
     <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog">
             <form wire:submit.prevent="addCharge" class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">Add Service Charge</h5>
@@ -226,7 +226,7 @@
     <!-- MODAL: ADD PAYMENT -->
     @if($showPaymentModal)
     <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog">
             <form wire:submit.prevent="addPayment" class="modal-content border-0 shadow-lg">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title">Record Payment</h5>

@@ -69,7 +69,7 @@
     <!-- Modal -->
     @if($showModal)
     <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content shadow-lg">
                 <div class="modal-header bg-light p-3">
                     <h5 class="modal-title">{{ $tpaId ? 'Edit TPA' : 'Create New TPA' }}</h5>
