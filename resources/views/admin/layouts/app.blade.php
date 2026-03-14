@@ -23,7 +23,7 @@
     <link href="{{ asset('assets/backend/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" />
     <!-- Icons Css -->
     <link href="{{ asset('assets/backend/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/frontend/css/vendor/fontawesome.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/backend/libs/fontawesome/css/all.css') }}" rel="stylesheet" type="text/css" />
 
     <!-- Include stylesheet -->
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
@@ -154,8 +154,6 @@
     <!-- Include the Quill library -->
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
-    <!-- Dashboard init -->
-    <script data-navigate-once src="{{ asset('assets/backend/js/pages/dashboard-ecommerce.init.js') }}"></script>
 
     <!-- App js -->
     <script src="{{ asset('assets/backend/js/app.js') }}"></script>

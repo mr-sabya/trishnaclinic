@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Admin\Opd;
 
-use App\Models\{OpdAdmission, OpdAdmissionCharge, OpdAdmissionPayment, OpdAdmissionSymptom, Patient, Doctor, SymptomType, SymptomTitle, Charge, ChargeCategory, PaymentMethod};
+use App\Models\{OpdAdmission, OpdAdmissionCharge, OpdAdmissionPayment, OpdAdmissionSymptom, Patient, Doctor, SymptomType, SymptomTitle, PaymentMethod, Charge, ChargeCategory};
 use Livewire\{Component, WithFileUploads};
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
@@ -11,53 +11,175 @@ class OpdManage extends Component
 {
     use WithFileUploads;
 
+    // Basic Info
     public $opdId;
-
-    // --- Header & Clinical ---
     public $patient_id, $doctor_id, $appointment_date, $case_type = 'New Case', $is_casualty = false;
     public $refference, $symptoms_description, $note, $known_allergies;
 
-    // --- Symptom Adder State ---
-    public $temp_type_id, $temp_title_id;
-    public $added_symptoms = []; // Stores objects like ['type_id' => 1, 'title_id' => 5, 'title_name' => 'Fever']
+    // Symptoms Properties
+    public $temp_type_id, $temp_title_id, $added_symptoms = [];
 
-    // --- Financials ---
-    public $charge_category_id, $charge_id;
-    public $standard_charge = 0, $applied_charge = 0, $tax_percentage = 0, $discount_percentage = 0, $net_amount = 0;
+    // Financial Properties
+    public $doctor_fee = 0;
+    public $hospital_fee = 0;
+    public $charge_category_id, $charge_id, $extra_charge_amount = 0;
+    public $tax_percentage = 0, $tax_amount = 0;
+    public $discount_percentage = 0, $discount_amount = 0, $net_amount = 0, $paid_amount = 0;
+    public $payment_method_id;
 
-    // --- Payment ---
-    public $payment_method_id, $paid_amount = 0, $cheque_no, $cheque_date;
+    // UI & Search Properties (The ones causing your errors)
+    public $patient_search = '';
+    public $patient_results = [];
+    public $selected_patient_data = null;
+    public $showPatientModal = false;
 
-    // --- UI Search State ---
-    public $patient_search = '', $patient_results = [], $selected_patient_data = null, $showPatientModal = false;
+    protected $rules = [
+        'patient_id' => 'required',
+        'doctor_id' => 'required',
+        'appointment_date' => 'required',
+        'charge_category_id' => 'required',
+        'charge_id' => 'required',
+        'payment_method_id' => 'required',
+        'paid_amount' => 'required|numeric|min:0',
+        'added_symptoms' => 'required|array|min:1',
+    ];
+
+    protected $messages = [
+        'patient_id.required' => 'Please search and select a patient.',
+        'doctor_id.required' => 'Select a consultant doctor.',
+        'charge_category_id.required' => 'Please select a charge category.',
+        'charge_id.required' => 'Please select a specific charge item.',
+        'added_symptoms.min' => 'Add at least one symptom to the list.',
+        'payment_method_id.required' => 'Select a payment method.',
+    ];
 
     public function mount($id = null)
     {
+        // Default Appointment Date for New Admissions
         $this->appointment_date = now()->format('Y-m-d\TH:i');
         $this->payment_method_id = PaymentMethod::where('is_default', true)->first()?->id;
 
         if ($id) {
             $this->opdId = $id;
-            $opd = OpdAdmission::with('symptoms.type', 'symptoms.title')->findOrFail($id);
-            $this->fill($opd->toArray());
+
+            // 1. Fetch the admission with all required relationships
+            $opd = OpdAdmission::with([
+                'patient.user',
+                'symptoms.type',
+                'symptoms.title',
+                'charges.chargeMaster'
+            ])->findOrFail($id);
+
+            // 2. Fill Basic Header Info
+            $this->patient_id = $opd->patient_id;
+            $this->doctor_id = $opd->doctor_id;
+            $this->appointment_date = $opd->appointment_date->format('Y-m-d\TH:i');
+            $this->case_type = $opd->case_type;
+            $this->is_casualty = $opd->is_casualty;
+            $this->refference = $opd->refference;
+            $this->symptoms_description = $opd->symptoms_description;
+            $this->known_allergies = $opd->known_allergies;
+            $this->note = $opd->note;
+
+            // 3. Populate Patient Search UI
             $this->selectPatient($opd->patient_id);
 
-            foreach ($opd->symptoms as $s) {
+            // 4. Reconstruct the Added Symptoms List for the UI Adder
+            foreach ($opd->symptoms as $symptom) {
                 $this->added_symptoms[] = [
-                    'type_id' => $s->symptom_type_id,
-                    'type_name' => $s->type->name,
-                    'title_id' => $s->symptom_title_id,
-                    'title_name' => $s->title->title
+                    'type_id' => $symptom->symptom_type_id,
+                    'type_name' => $symptom->type->name,
+                    'title_id' => $symptom->symptom_title_id,
+                    'title_name' => $symptom->title->title
                 ];
+            }
+
+            // 5. Populate Financials from Admission Table
+            $this->doctor_fee = $opd->doctor_fee;
+            $this->hospital_fee = $opd->hospital_fee;
+            $this->discount_percentage = $opd->discount_percentage;
+            $this->discount_amount = $opd->discount_amount;
+            $this->net_amount = $opd->net_amount;
+
+            // 6. Find and Populate the Service Charge (Charge Master selection)
+            // We look for the row in the charges table that has a charge_id
+            $extraCharge = $opd->charges->whereNotNull('charge_id')->first();
+            if ($extraCharge) {
+                $this->charge_category_id = $extraCharge->chargeMaster->charge_category_id;
+                $this->charge_id = $extraCharge->charge_id;
+                $this->extra_charge_amount = $extraCharge->standard_charge;
+                $this->tax_percentage = $extraCharge->tax_percentage ?? 0;
+                $this->tax_amount = $extraCharge->tax_amount ?? 0;
+            }
+
+            // 7. Load Payment info (typically for display or partial payment logic)
+            $payment = $opd->payments->first();
+            if ($payment) {
+                $this->payment_method_id = $payment->payment_method_id;
+                $this->paid_amount = $payment->paid_amount;
             }
         }
     }
 
-    // --- Symptom Adder Logic ---
+    // --- Financial Calculations ---
+
+    public function updatedDoctorId($id)
+    {
+        if ($id) {
+            $doctor = Doctor::find($id);
+            // Adjust these fields based on your actual Doctor model columns
+            $this->doctor_fee = $doctor->consultation_fee ?? 0;
+            $this->hospital_fee = $doctor->opd_hospital_fee ?? 0;
+        } else {
+            $this->doctor_fee = 0;
+            $this->hospital_fee = 0;
+        }
+        $this->calculateTotals();
+    }
+
+    public function updatedChargeCategoryId()
+    {
+        $this->charge_id = null;
+        $this->extra_charge_amount = 0;
+        $this->tax_amount = 0;
+        $this->calculateTotals();
+    }
+
+    public function updatedChargeId($id)
+    {
+        if ($id) {
+            $charge = Charge::with('tax')->find($id);
+            if ($charge) {
+                $this->extra_charge_amount = $charge->standard_charge;
+                $this->tax_percentage = $charge->tax->percentage ?? 0;
+                $this->tax_amount = ($this->extra_charge_amount * $this->tax_percentage) / 100;
+            }
+        } else {
+            $this->extra_charge_amount = 0;
+            $this->tax_percentage = 0;
+            $this->tax_amount = 0;
+        }
+        $this->calculateTotals();
+    }
+
+    public function calculateTotals()
+    {
+        $subtotal = (float)$this->doctor_fee + (float)$this->hospital_fee + (float)$this->extra_charge_amount + (float)$this->tax_amount;
+        $this->discount_amount = ($subtotal * (float)($this->discount_percentage ?? 0)) / 100;
+        $this->net_amount = $subtotal - $this->discount_amount;
+        $this->paid_amount = $this->net_amount;
+    }
+
+    public function updatedDiscountPercentage()
+    {
+        $this->calculateTotals();
+    }
+
+    // --- Clinical / Symptoms Logic ---
+
     public function addSymptom()
     {
         $this->validate(['temp_type_id' => 'required', 'temp_title_id' => 'required']);
-
         $type = SymptomType::find($this->temp_type_id);
         $title = SymptomTitle::find($this->temp_title_id);
 
@@ -67,7 +189,6 @@ class OpdManage extends Component
             'title_id' => $title->id,
             'title_name' => $title->title
         ];
-
         $this->reset(['temp_type_id', 'temp_title_id']);
     }
 
@@ -78,6 +199,7 @@ class OpdManage extends Component
     }
 
     // --- Patient Search Logic ---
+
     public function updatedPatientSearch($query)
     {
         if (strlen($query) < 2) {
@@ -85,38 +207,17 @@ class OpdManage extends Component
             return;
         }
         $this->patient_results = Patient::with('user')
-            ->whereHas('user', fn($u) => $u->where('name', 'like', "%$query%")->orWhere('phone', 'like', "%$query%"))
-            ->orWhere('mrn_number', 'like', "%$query%")->limit(5)->get();
+            ->whereHas('user', fn($u) => $u->where('name', 'like', "%$query%"))
+            ->orWhere('mrn_number', 'like', "%$query%")
+            ->limit(5)->get();
     }
 
     public function selectPatient($id)
     {
-        $this->selected_patient_data = Patient::with(['user', 'tpa'])->find($id);
+        $this->selected_patient_data = Patient::with('user')->find($id);
         $this->patient_id = $id;
         $this->patient_search = $this->selected_patient_data->user->name;
-        $this->known_allergies = $this->selected_patient_data->known_allergies;
         $this->patient_results = [];
-    }
-
-    // --- Financial Logic ---
-    public function updatedChargeId($id)
-    {
-        if ($id) {
-            $charge = Charge::with('tax_category')->find($id);
-            $this->standard_charge = $charge->standard_charge;
-            $this->applied_charge = $charge->standard_charge;
-            $this->tax_percentage = $charge->tax_category?->percentage ?? 0;
-            $this->calculateTotals();
-        }
-    }
-
-    public function calculateTotals()
-    {
-        $discount = ($this->applied_charge * $this->discount_percentage) / 100;
-        $afterDiscount = $this->applied_charge - $discount;
-        $tax = ($afterDiscount * $this->tax_percentage) / 100;
-        $this->net_amount = $afterDiscount + $tax;
-        $this->paid_amount = $this->net_amount;
     }
 
     #[On('patientCreated')]
@@ -126,25 +227,18 @@ class OpdManage extends Component
         $this->showPatientModal = false;
     }
 
-    #[On('closeModal')]
-    public function closeModal()
-    {
-        $this->showPatientModal = false;
-    }
+    // --- Save Logic ---
 
     public function save()
     {
-        $this->validate([
-            'patient_id' => 'required',
-            'doctor_id' => 'required',
-            'charge_id' => 'required',
-            'paid_amount' => 'required|numeric',
-            'added_symptoms' => 'required|array|min:1'
-        ]);
+        $this->validate();
 
-        DB::transaction(function () {
-            $admission = OpdAdmission::updateOrCreate(['id' => $this->opdId], [
-                'opd_number' => $this->opdId ? OpdAdmission::find($this->opdId)->opd_number : OpdAdmission::generateOpdNumber(),
+        try {
+            DB::beginTransaction();
+
+            // 1. Create Admission
+            $admission = OpdAdmission::create([
+                'opd_number' => OpdAdmission::generateOpdNumber(),
                 'patient_id' => $this->patient_id,
                 'doctor_id' => $this->doctor_id,
                 'appointment_date' => $this->appointment_date,
@@ -153,10 +247,15 @@ class OpdManage extends Component
                 'symptoms_description' => $this->symptoms_description,
                 'note' => $this->note,
                 'known_allergies' => $this->known_allergies,
+                'doctor_fee' => $this->doctor_fee,
+                'hospital_fee' => $this->hospital_fee,
+                'discount_percentage' => $this->discount_percentage,
+                'discount_amount' => $this->discount_amount,
+                'net_amount' => $this->net_amount,
+                'status' => 'admitted'
             ]);
 
-            // Save Relational Symptoms
-            OpdAdmissionSymptom::where('opd_admission_id', $admission->id)->delete();
+            // 2. Symptoms
             foreach ($this->added_symptoms as $s) {
                 OpdAdmissionSymptom::create([
                     'opd_admission_id' => $admission->id,
@@ -165,37 +264,41 @@ class OpdManage extends Component
                 ]);
             }
 
-            // Save Charges & Payments
-            OpdAdmissionCharge::updateOrCreate(['opd_admission_id' => $admission->id], [
+            // 3. Service Charge
+            OpdAdmissionCharge::create([
+                'opd_admission_id' => $admission->id,
                 'charge_id' => $this->charge_id,
-                'standard_charge' => $this->standard_charge,
-                'applied_charge' => $this->applied_charge,
+                'standard_charge' => $this->extra_charge_amount,
+                'applied_charge' => $this->extra_charge_amount,
                 'tax_percentage' => $this->tax_percentage,
-                'discount_percentage' => $this->discount_percentage,
-                'net_amount' => $this->net_amount,
+                'tax_amount' => $this->tax_amount,
+                'net_amount' => $this->extra_charge_amount + $this->tax_amount
             ]);
 
+            // 4. Payment
             OpdAdmissionPayment::create([
                 'opd_admission_id' => $admission->id,
                 'payment_method_id' => $this->payment_method_id,
-                'paid_amount' => $this->paid_amount,
-                'cheque_no' => $this->cheque_no,
-                'cheque_date' => $this->cheque_date,
+                'paid_amount' => $this->paid_amount
             ]);
-        });
 
-        return redirect()->route('admin.opd.index')->with('success', 'Admission Finalized.');
+            DB::commit();
+            return redirect()->route('admin.opd.index')->with('success', 'OPD Admission Successful.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     public function render()
     {
         return view('livewire.admin.opd.opd-manage', [
-            'doctors' => Doctor::all(),
+            'doctors' => Doctor::where('is_active', true)->get(),
             'symptomTypes' => SymptomType::all(),
             'symptomTitles' => SymptomTitle::where('symptom_type_id', $this->temp_type_id)->get(),
-            'chargeCategories' => ChargeCategory::all(),
+            'categories' => ChargeCategory::all(),
             'charges' => Charge::where('charge_category_id', $this->charge_category_id)->get(),
-            'paymentMethods' => PaymentMethod::getActiveMethods(),
+            'paymentMethods' => PaymentMethod::where('is_active', true)->get(),
         ]);
     }
 }

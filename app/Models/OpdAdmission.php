@@ -20,7 +20,13 @@ class OpdAdmission extends Model
         'symptoms_description',
         'known_allergies',
         'note',
-        'status'
+        'status',
+        // New Financial Columns
+        'doctor_fee',
+        'hospital_fee',
+        'discount_percentage',
+        'discount_amount',
+        'net_amount'
     ];
 
     protected $casts = [
@@ -74,11 +80,15 @@ class OpdAdmission extends Model
     // --- Accessors for Financials ---
 
     /**
-     * Accessor: Sum of all added charges (Consultation, X-Ray, etc.)
+     * Accessor: Sum of Initial Admission Amount + All Additional Charges
      */
     public function getGrandTotalAttribute()
     {
-        return $this->charges->sum('net_amount');
+        // Sum the net_amount from the admission itself + sum of all additional charges
+        $initialAmount = $this->attributes['net_amount'] ?? 0;
+        $additionalCharges = $this->charges->sum('net_amount');
+
+        return $initialAmount + $additionalCharges;
     }
 
     /**

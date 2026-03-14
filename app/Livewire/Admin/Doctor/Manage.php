@@ -77,7 +77,7 @@ class Manage extends Component
         Doctor::updateOrCreate(['id' => $this->doctorId], $data);
 
         session()->flash('success', $this->doctorId ? 'Doctor updated.' : 'Doctor created.');
-        return redirect()->route('admin.doctors.index');
+        return $this->redirect(route('admin.doctor.index'), navigate: true);
     }
 
     public function render()

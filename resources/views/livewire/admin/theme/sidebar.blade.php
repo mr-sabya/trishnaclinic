@@ -259,6 +259,28 @@
                         </ul>
                     </div>
                 </li>
+
+                <!-- pathology -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.pathology.*') ? 'active' : 'collapsed' }}" href="#pathologyManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.pathology.*') ? 'true' : 'false' }}" aria-controls="pathologyManage">
+                        <i class="bi bi-wallet2"></i> <span data-key="t-pathology">Pathology</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.pathology.*') ? 'show' : '' }}" id="pathologyManage">
+                        <ul class="nav nav-sm flex-column">
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pathology.unit') }}" class="nav-link {{ Route::is('admin.pathology.unit') ? 'active' : '' }}" wire:navigate>
+                                    Pathology Units
+                                </a>
+                            </li>
+
+                            
+
+                        </ul>
+                    </div>
+                </li>
+
             </ul>
         </div>
         <!-- Sidebar -->

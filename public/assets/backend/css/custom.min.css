@@ -1,2 +1,4 @@
-
 /*# sourceMappingURL=custom.min.css.map */
+.table-responsive .dropdown-menu {
+    position: fixed !important;
+}

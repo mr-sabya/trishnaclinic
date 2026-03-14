@@ -89,4 +89,9 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/{id}/edit', [App\Http\Controllers\Admin\OpdController::class, 'edit'])->name('edit');
         Route::get('/{id}/show', [App\Http\Controllers\Admin\OpdController::class, 'show'])->name('show');
     });
+
+    Route::prefix('pathology')->name('pathology.')->group(function () {
+        Route::get('/units', [\App\Http\Controllers\Admin\PathologyController::class, 'unit'])->name('unit');
+        
+    });
 });
