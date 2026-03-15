@@ -37,7 +37,7 @@
                             </div>
                         </td>
                         <td class="text-end">
-                            <a href="{{ route('admin.appointment.doctor-schedules.manage', $item->id) }}" wire:navigate class="btn btn-sm btn-outline-primary"><i class="ri-pencil-line"></i></a>
+                            <a href="{{ route('admin.doctor-schedules.edit', $item->id) }}" wire:navigate class="btn btn-sm btn-outline-primary"><i class="ri-pencil-line"></i></a>
                             <button onclick="confirm('Delete schedule?') || event.stopImmediatePropagation()" wire:click="delete({{ $item->id }})" class="btn btn-sm btn-outline-danger ms-1"><i class="ri-delete-bin-line"></i></button>
                         </td>
                     </tr>

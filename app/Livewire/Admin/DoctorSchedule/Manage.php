@@ -53,7 +53,7 @@ class Manage extends Component
         ]);
 
         session()->flash('success', 'Doctor schedule saved successfully.');
-        return redirect()->route('admin.appointment.doctor-schedules.index');
+        return redirect()->route('admin.doctor-schedules.index');
     }
 
     public function render()

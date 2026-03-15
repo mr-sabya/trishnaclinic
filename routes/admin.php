@@ -66,14 +66,14 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
     Route::prefix('doctor-schedules')->name('doctor-schedules.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ShiftController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
-        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\ShiftController::class, 'create'])->name('create');
+        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\ShiftController::class, 'edit'])->name('edit');
     });
 
     // appointment
     Route::prefix('appointment')->name('appointment.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AppointmentController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\AppointmentController::class, 'create'])->name('create');
-        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\AppointmentController::class, 'create'])->name('create');
+        Route::get('/{id}/edit/', [\App\Http\Controllers\Admin\AppointmentController::class, 'edit'])->name('edit');
     });
 
     // Symptom Management Group
