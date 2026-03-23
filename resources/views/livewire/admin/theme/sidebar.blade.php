@@ -293,6 +293,39 @@
                         </ul>
                     </div>
                 </li>
+                <!-- radiologyradiology -->
+                <li class="nav-item">
+                    <a class="nav-link menu-link {{ Route::is('admin.radiology.*') ? 'active' : 'collapsed' }}" href="#radiologyManage" data-bs-toggle="collapse" role="button"
+                        aria-expanded="{{ Route::is('admin.radiology.*') ? 'true' : 'false' }}" aria-controls="radiologyManage">
+                        <i class="bi bi-wallet2"></i> <span data-key="t-radiology">Radiology</span>
+                    </a>
+                    <div class="collapse menu-dropdown {{ Route::is('admin.radiology.*') ? 'show' : '' }}" id="radiologyManage">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.radiology.unit') }}" class="nav-link {{ Route::is('admin.radiology.unit') ? 'active' : '' }}" wire:navigate>
+                                    Radiology Units
+                                </a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a href="{{ route('admin.radiology.category') }}" class="nav-link {{ Route::is('admin.radiology.category') ? 'active' : '' }}" wire:navigate>
+                                    Radiology Categories
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.radiology.parameter') }}" class="nav-link {{ Route::is('admin.radiology.parameter') ? 'active' : '' }}" wire:navigate>
+                                    Radiology Parameters
+                                </a>
+
+                            <li class="nav-item">
+                                <a href="{{ route('admin.radiology.test') }}" class="nav-link {{ Route::is('admin.radiology.test') ? 'active' : '' }}" wire:navigate>
+                                    Radiology Tests
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
 
             </ul>
         </div>

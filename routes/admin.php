@@ -95,6 +95,11 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/categories', [\App\Http\Controllers\Admin\PathologyController::class, 'category'])->name('category');
         Route::get('/parameters', [\App\Http\Controllers\Admin\PathologyController::class, 'parameter'])->name('parameter');
         Route::get('/tests', [\App\Http\Controllers\Admin\PathologyController::class, 'test'])->name('test');
-        
+    });
+    Route::prefix('radiology')->name('radiology.')->group(function () {
+        Route::get('/units', [\App\Http\Controllers\Admin\RadiologyController::class, 'unit'])->name('unit');
+        Route::get('/categories', [\App\Http\Controllers\Admin\RadiologyController::class, 'category'])->name('category');
+        Route::get('/parameters', [\App\Http\Controllers\Admin\RadiologyController::class, 'parameter'])->name('parameter');
+        Route::get('/tests', [\App\Http\Controllers\Admin\RadiologyController::class, 'test'])->name('test');
     });
 });
