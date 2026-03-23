@@ -80,7 +80,7 @@
                                     </td>
                                     <td>{{ $patient->created_at->format('d M, Y') }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('admin.patients.manage', $patient->id) }}" wire:navigate class="btn btn-sm btn-outline-primary shadow-sm me-1">
+                                        <a href="{{ route('admin.patients.edit', $patient->id) }}" wire:navigate class="btn btn-sm btn-outline-primary shadow-sm me-1">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <button onclick="confirm('Permanently delete this patient and their login account?') || event.stopImmediatePropagation()"
