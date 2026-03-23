@@ -102,4 +102,21 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/parameters', [\App\Http\Controllers\Admin\RadiologyController::class, 'parameter'])->name('parameter');
         Route::get('/tests', [\App\Http\Controllers\Admin\RadiologyController::class, 'test'])->name('test');
     });
+
+
+
+
+    Route::prefix('bed')->name('bed.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BedController::class, 'index'])->name('index');
+        Route::get('/type', [\App\Http\Controllers\Admin\BedController::class, 'bedType'])->name('type');
+        Route::get('/group', [\App\Http\Controllers\Admin\BedController::class, 'bedGroup'])->name('group');
+        Route::get('/floor', [\App\Http\Controllers\Admin\BedController::class, 'floor'])->name('floor');
+    });
+
+    Route::prefix('ipd')->name('ipd.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\IpdController::class, 'index'])->name('index');
+        Route::get('/create', [App\Http\Controllers\Admin\IpdController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [App\Http\Controllers\Admin\IpdController::class, 'edit'])->name('edit');
+        Route::get('/{id}/show', [App\Http\Controllers\Admin\IpdController::class, 'show'])->name('show');
+    });
 });
