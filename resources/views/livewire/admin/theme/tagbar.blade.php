@@ -9,10 +9,10 @@
             <div class="col-md-auto col-6 d-none d-lg-block">
                 <div class="d-flex align-items-center justify-content-center gap-3 fs-13 text-white-50">
                     <div>
-                        <i class="bi bi-envelope align-middle me-2"></i> support@themesbrand.com
+                        <i class="bi bi-envelope align-middle me-2"></i> support@tgainsit.com
                     </div>
                     <div>
-                        <i class="bi bi-globe align-middle me-2"></i> www.themesbrand.com
+                        <i class="bi bi-globe align-middle me-2"></i> www.tgainsit.com
                     </div>
                 </div>
             </div>
