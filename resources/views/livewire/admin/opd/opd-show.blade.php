@@ -11,13 +11,22 @@
     <div class="row mb-4 g-3">
         <div class="col-md-8">
             <div class="card border-0 shadow-sm p-3 h-100">
-                <div class="d-flex align-items-center">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($opd->patient->user->name) }}&background=random" class="rounded-circle me-3 border" width="70">
-                    <div>
-                        <h4 class="mb-0 fw-bold">{{ $opd->patient->user->name }}</h4>
-                        <span class="badge bg-primary">{{ $opd->opd_number }}</span>
-                        <span class="text-muted small ms-2">MRN: {{ $opd->patient->mrn_number }} | Phone: {{ $opd->patient->user->phone }}</span>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($opd->patient->user->name) }}&background=0d6efd&color=fff" class="rounded-circle me-3 border" width="70">
+                        <div>
+                            <h4 class="mb-0 fw-bold">{{ $opd->patient->user->name }}</h4>
+                            <div class="mt-1">
+                                <span class="badge bg-primary">{{ $opd->opd_number }}</span>
+                                <span class="text-muted small ms-2">MRN: {{ $opd->patient->mrn_number }} | {{ $opd->patient->user->phone }}</span>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- NEW: PRINT BLANK PRESCRIPTION BUTTON -->
+                    <a href="{{ route('admin.opd.print-blank', $opd->id) }}" target="_blank" class="btn btn-outline-dark shadow-sm fw-bold">
+                        <i class="bi bi-printer-fill me-2"></i> Print Blank Prescription
+                    </a>
                 </div>
             </div>
         </div>

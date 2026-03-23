@@ -12,9 +12,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Patient extends Model
 {
     protected $fillable = [
-        'user_id', 'tpa_id', 'mrn_number', 'guardian_name', 'date_of_birth',
-        'gender', 'blood_group', 'marital_status', 'photo', 'identification_number',
-        'address', 'known_allergies', 'remarks', 'insurance_id', 'tpa_validity'
+        'user_id',
+        'tpa_id',
+        'mrn_number',
+        'guardian_name',
+        'date_of_birth',
+        'gender',
+        'blood_group',
+        'marital_status',
+        'photo',
+        'identification_number',
+        'address',
+        'known_allergies',
+        'remarks',
+        'insurance_id',
+        'tpa_validity'
     ];
 
     protected $casts = [
@@ -59,12 +71,24 @@ class Patient extends Model
     public function getDetailedAgeAttribute(): array
     {
         if (!$this->date_of_birth) return ['y' => 0, 'm' => 0, 'd' => 0];
-        
+
         $diff = Carbon::parse($this->date_of_birth)->diff(now());
         return [
             'y' => $diff->y,
             'm' => $diff->m,
             'd' => $diff->d
         ];
+    }
+
+    /**
+     * Accessor to calculate age from Date of Birth
+     */
+    public function getAgeAttribute()
+    {
+        if (!$this->date_of_birth) {
+            return 'N/A';
+        }
+
+        return Carbon::parse($this->date_of_birth)->age;
     }
 }

@@ -49,7 +49,7 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Qualification *</label>
-                                <input type="text" wire:model="qualification" class="form-control" placeholder="e.g. MBBS, FCPS">
+                                <textarea wire:model="qualification" class="form-control" placeholder="e.g. MBBS, FCPS"></textarea>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-bold">Experience</label>

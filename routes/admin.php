@@ -88,7 +88,14 @@ Route::middleware(['auth', 'checkRole:superadmin'])->group(function () {
         Route::get('/create', [App\Http\Controllers\Admin\OpdController::class, 'create'])->name('create');
         Route::get('/{id}/edit', [App\Http\Controllers\Admin\OpdController::class, 'edit'])->name('edit');
         Route::get('/{id}/show', [App\Http\Controllers\Admin\OpdController::class, 'show'])->name('show');
+
+        Route::get('/print-blank/{id}', function ($id) {
+            $opd = \App\Models\OpdAdmission::with(['patient.user', 'doctor'])->findOrFail($id);
+            return view('admin.opd.prescription-blank', compact('opd'));
+        })->name('print-blank');
     });
+
+
 
     Route::prefix('pathology')->name('pathology.')->group(function () {
         Route::get('/units', [\App\Http\Controllers\Admin\PathologyController::class, 'unit'])->name('unit');
