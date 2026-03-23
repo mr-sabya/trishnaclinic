@@ -117,6 +117,7 @@
                             <li class="nav-item"><a href="{{ route('admin.charge.charge-types') }}" class="nav-link {{ Route::is('admin.charge.charge-types') ? 'active' : '' }}" wire:navigate>Charge Types</a></li>
                             <li class="nav-item"><a href="{{ route('admin.charge.unit') }}" class="nav-link {{ Route::is('admin.charge.unit') ? 'active' : '' }}" wire:navigate>Charge Units</a></li>
                             <li class="nav-item"><a href="{{ route('admin.charge.tax-categories') }}" class="nav-link {{ Route::is('admin.charge.tax-categories') ? 'active' : '' }}" wire:navigate>Tax Categories</a></li>
+                            <li class="nav-item"><a href="{{ route('admin.charge.tpa-charges') }}" class="nav-link {{ Route::is('admin.charge.tpa-charges') ? 'active' : '' }}" wire:navigate>TPA Charges</a></li>
                         </ul>
                     </div>
                 </li>
