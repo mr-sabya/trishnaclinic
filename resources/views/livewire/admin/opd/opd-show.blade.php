@@ -7,7 +7,7 @@
     </div>
     @endif
 
-    <!-- Header Summary -->
+    <!-- Header Summary (Keep existing) -->
     <div class="row mb-4 g-3">
         <div class="col-md-8">
             <div class="card border-0 shadow-sm p-3 h-100">
@@ -22,8 +22,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- NEW: PRINT BLANK PRESCRIPTION BUTTON -->
                     <a href="{{ route('admin.opd.print-blank', $opd->id) }}" target="_blank" class="btn btn-outline-dark shadow-sm fw-bold">
                         <i class="bi bi-printer-fill me-2"></i> Print Blank Prescription
                     </a>
@@ -48,6 +46,14 @@
         <div class="card-header bg-white border-bottom-0 pt-3">
             <ul class="nav nav-tabs card-header-tabs border-bottom-0">
                 <li class="nav-item"><button wire:click="$set('activeTab', 'overview')" class="nav-link border-0 {{ $activeTab == 'overview' ? 'active fw-bold text-primary border-bottom border-primary' : 'text-muted' }}">Overview</button></li>
+
+                <!-- ADDED: Symptoms Tab Header -->
+                <li class="nav-item">
+                    <button wire:click="$set('activeTab', 'symptoms')" class="nav-link border-0 {{ $activeTab == 'symptoms' ? 'active fw-bold text-primary border-bottom border-primary' : 'text-muted' }}">
+                        Symptoms ({{ $opd->symptoms->count() }})
+                    </button>
+                </li>
+
                 <li class="nav-item"><button wire:click="$set('activeTab', 'charges')" class="nav-link border-0 {{ $activeTab == 'charges' ? 'active fw-bold text-primary border-bottom border-primary' : 'text-muted' }}">Charges ({{ $opd->charges->count() }})</button></li>
                 <li class="nav-item"><button wire:click="$set('activeTab', 'payments')" class="nav-link border-0 {{ $activeTab == 'payments' ? 'active fw-bold text-primary border-bottom border-primary' : 'text-muted' }}">Payments ({{ $opd->payments->count() }})</button></li>
             </ul>
@@ -55,6 +61,7 @@
 
         <div class="card-body">
             @if($activeTab == 'overview')
+            <!-- Overview Content (Keep existing) -->
             <div class="row g-4">
                 <div class="col-md-6 border-end">
                     <h6 class="fw-bold mb-3 text-uppercase small text-muted">Clinical Info</h6>
@@ -76,7 +83,7 @@
                             <td class="text-danger fw-bold">{{ $opd->known_allergies ?? 'None' }}</td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Symptoms:</td>
+                            <td class="text-muted">Symptoms Description:</td>
                             <td>{{ $opd->symptoms_description ?? 'N/A' }}</td>
                         </tr>
                     </table>
@@ -104,7 +111,43 @@
                 </div>
             </div>
 
+            @elseif($activeTab == 'symptoms')
+            <!-- ADDED: Symptoms Content -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Clinical Symptoms</h6>
+                <button wire:click="$set('showSymptomModal', true)" class="btn btn-dark btn-sm px-3 shadow-none">+ Add Symptom</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small border">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Symptom Title</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($opd->symptoms as $s)
+                        <tr>
+                            <td>{{ $s->type->name }}</td>
+                            <td class="fw-bold">{{ $s->title->title }}</td>
+                            <td class="text-end">
+                                <button wire:click="deleteSymptom({{ $s->id }})" class="btn btn-link text-danger p-0" onclick="return confirm('Remove this symptom?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">No symptoms recorded.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
             @elseif($activeTab == 'charges')
+            <!-- Charges Content (Keep existing) -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold mb-0">Billing Items</h6>
                 <button wire:click="$set('showChargeModal', true)" class="btn btn-primary btn-sm px-3 shadow-none">+ Add Service Charge</button>
@@ -137,7 +180,7 @@
                     </tbody>
                     <tfoot class="table-light">
                         <tr class="fw-bold">
-                            <td colspan="4" class="text-end">Grand Total of Charges:</td>
+                            <td colspan="4" class="text-end">Grand Total:</td>
                             <td class="text-end text-primary">৳{{ number_format($opd->grand_total, 2) }}</td>
                         </tr>
                     </tfoot>
@@ -145,6 +188,7 @@
             </div>
 
             @elseif($activeTab == 'payments')
+            <!-- Payments Content (Keep existing) -->
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="fw-bold mb-0">Payments History</h6>
                 <button wire:click="$set('showPaymentModal', true)" class="btn btn-success btn-sm px-3 shadow-none">+ Record Payment</button>
@@ -185,13 +229,46 @@
         </div>
     </div>
 
-    <!-- MODAL: ADD CHARGE -->
+    <!-- ADDED: MODAL ADD SYMPTOM -->
+    @if($showSymptomModal)
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <form wire:submit.prevent="addSymptom" class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-dark p-3">
+                    <h5 class="modal-title text-white">Add Patient Symptom</h5>
+                    <button type="button" class="btn-close btn-close-white" wire:click="$set('showSymptomModal', false)"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Symptom Category</label>
+                        <select wire:model.live="symptom_type_id" class="form-select @error('symptom_type_id') is-invalid @enderror">
+                            <option value="">Select Category</option>
+                            @foreach($symptomTypes as $st) <option value="{{ $st->id }}">{{ $st->name }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Symptom Title</label>
+                        <select wire:model="symptom_title_id" class="form-select @error('symptom_title_id') is-invalid @enderror" @if(!$symptom_type_id) disabled @endif>
+                            <option value="">Select Title</option>
+                            @foreach($symptomTitles as $st) <option value="{{ $st->id }}">{{ $st->title }}</option> @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-dark w-100">Save Symptom</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
+    <!-- MODAL: ADD CHARGE (Keep existing) -->
     @if($showChargeModal)
     <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
             <form wire:submit.prevent="addCharge" class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Add Service Charge</h5>
+                <div class="modal-header bg-primary p-3">
+                    <h5 class="modal-title text-white">Add Service Charge</h5>
                     <button type="button" class="btn-close btn-close-white" wire:click="$set('showChargeModal', false)"></button>
                 </div>
                 <div class="modal-body">
@@ -232,13 +309,13 @@
     </div>
     @endif
 
-    <!-- MODAL: ADD PAYMENT -->
+    <!-- MODAL: ADD PAYMENT (Keep existing) -->
     @if($showPaymentModal)
     <div class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
         <div class="modal-dialog">
             <form wire:submit.prevent="addPayment" class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Record Payment</h5>
+                <div class="modal-header bg-success p-3">
+                    <h5 class="modal-title text-white">Record Payment</h5>
                     <button type="button" class="btn-close btn-close-white" wire:click="$set('showPaymentModal', false)"></button>
                 </div>
                 <div class="modal-body">

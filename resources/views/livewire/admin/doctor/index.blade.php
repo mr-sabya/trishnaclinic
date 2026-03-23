@@ -18,7 +18,8 @@
                         <tr>
                             <th>Doctor</th>
                             <th>Department / Specialist</th>
-                            <th>Fees (Total)</th>
+                            <th>Fees(Doctor)</th>
+                            <th>Fees(Hospital)</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -40,8 +41,14 @@
                                 <div class="small mt-1">{{ $doctor->specialist->name }}</div>
                             </td>
                             <td>
-                                <div class="small">Appt: <strong>{{ number_format($doctor->total_appointment_fee, 2) }}</strong></div>
-                                <div class="small">OPD: <strong>{{ number_format($doctor->total_opd_fee, 2) }}</strong></div>
+                                <div class="small">Appt: <strong>{{ number_format($doctor->appointment_doctor_fee, 2) }}</strong></div>
+                                <div class="small">OPD: <strong>{{ number_format($doctor->opd_doctor_fee, 2) }}</strong></div>
+                                <div class="small">IPD: <strong>{{ number_format($doctor->ipd_doctor_fee, 2) }}</strong></div>
+                            </td>
+                            <td>
+                                <div class="small">Appt: <strong>{{ number_format($doctor->appointment_hospital_fee, 2) }}</strong></div>
+                                <div class="small">OPD: <strong>{{ number_format($doctor->opd_hospital_fee, 2) }}</strong></div>
+                                <div class="small">IPD: <strong>{{ number_format($doctor->ipd_hospital_fee, 2) }}</strong></div>
                             </td>
                             <td>
                                 <span class="badge {{ $doctor->is_active ? 'bg-success' : 'bg-danger' }}">

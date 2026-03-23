@@ -67,8 +67,12 @@ class IpdAdmission extends Model
     public static function generateIpdNumber()
     {
         $latest = self::latest()->first();
-        $nextNum = $latest ? ((int) substr($latest->ipd_number, -4)) + 1 : 1;
-        return 'IPDN-' . date('y') . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+
+        // We use -6 in substr to extract the last 6 digits accurately
+        $nextNum = $latest ? ((int) substr($latest->ipd_number, -6)) + 1 : 1;
+
+        // This generates: 24-000001 (Year - 6 digits)
+        return date('y') . '-' . str_pad($nextNum, 6, '0', STR_PAD_LEFT);
     }
 
     public function getGrandTotalAttribute()

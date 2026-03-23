@@ -41,20 +41,4 @@ class Doctor extends Model
         return $this->belongsTo(Specialist::class);
     }
 
-    // --- Accessors for Totals (Used in Billing/UI) ---
-
-    public function getTotalAppointmentFeeAttribute()
-    {
-        return $this->appointment_doctor_fee + $this->appointment_hospital_fee;
-    }
-
-    public function getTotalOpdFeeAttribute()
-    {
-        return $this->opd_doctor_fee + $this->opd_hospital_fee;
-    }
-
-    public function getTotalIpdFeeAttribute()
-    {
-        return $this->ipd_doctor_fee + $this->ipd_hospital_fee;
-    }
 }

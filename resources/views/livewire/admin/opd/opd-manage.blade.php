@@ -12,7 +12,6 @@
                         class="form-control border-start-0 shadow-none @error('patient_id') is-invalid @enderror"
                         placeholder="Search Patient (Name/MRN)...">
                 </div>
-
                 @if(!empty($patient_results))
                 <div class="list-group position-absolute w-100 shadow-lg mt-1" style="z-index: 1050;">
                     @foreach($patient_results as $p)
@@ -37,7 +36,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-9">
                             <h4 class="mb-1 fw-bold text-primary">{{ $selected_patient_data->user->name }}</h4>
-                            <p class="mb-0 text-muted">MRN: <strong class="text-dark">{{ $selected_patient_data->mrn_number }}</strong> | Gender: <strong class="text-dark">{{ $selected_patient_data->gender->value }}</strong></p>
+                            <p class="mb-0 text-muted">MRN: <strong>{{ $selected_patient_data->mrn_number }}</strong> | Gender: <strong>{{ $selected_patient_data->gender->value }}</strong></p>
                         </div>
                         <div class="col-md-3 text-end">
                             <img src="{{ asset('storage/'.$selected_patient_data->photo) }}" class="rounded shadow-sm" width="80" onerror="this.src='https://ui-avatars.com/api/?name={{ $selected_patient_data->user->name }}'">
@@ -46,25 +45,25 @@
                 </div>
                 @endif
 
-                <h6 class="fw-bold mb-3 text-uppercase text-muted small">Clinical Symptoms</h6>
+                <h6 class="fw-bold mb-3 text-uppercase text-muted small">Clinical Symptoms (Optional)</h6>
                 <div class="row g-3 mb-4 p-4 bg-white border rounded shadow-sm">
                     <div class="col-md-5">
                         <label class="small fw-bold">Category</label>
-                        <select wire:model.live="temp_type_id" class="form-select">
+                        <select wire:model.live="temp_type_id" class="form-select shadow-none">
                             <option value="">Select Category</option>
                             @foreach($symptomTypes as $st) <option value="{{ $st->id }}">{{ $st->name }}</option> @endforeach
                         </select>
                     </div>
                     <div class="col-md-5">
                         <label class="small fw-bold">Symptom</label>
-                        <select wire:model="temp_title_id" class="form-select" @if(!$temp_type_id) disabled @endif>
+                        <select wire:model="temp_title_id" class="form-select shadow-none" @if(!$temp_type_id) disabled @endif>
                             <option value="">Select Symptom</option>
                             @foreach($symptomTitles as $title) <option value="{{ $title->id }}">{{ $title->title }}</option> @endforeach
                         </select>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
-                        <button type="button" wire:click="addSymptom" class="btn btn-dark w-100">Add</button>
+                        <button type="button" wire:click="addSymptom" class="btn btn-dark w-100 shadow-none">Add</button>
                     </div>
 
                     <div class="col-12 mt-3">
@@ -81,27 +80,26 @@
                                 <tr>
                                     <td>{{ $s['type_name'] }}</td>
                                     <td class="fw-bold">{{ $s['title_name'] }}</td>
-                                    <td class="text-end"><button type="button" wire:click="removeSymptom({{ $idx }})" class="btn btn-link text-danger p-0"><i class="bi bi-x-circle-fill"></i></button></td>
+                                    <td class="text-end"><button type="button" wire:click="removeSymptom({{ $idx }})" class="btn btn-link text-danger p-0 shadow-none"><i class="bi bi-x-circle-fill"></i></button></td>
                                 </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                        @error('added_symptoms') <small class="text-danger">{{ $message }}</small> @enderror
                     </div>
                 </div>
 
-                <h6 class="fw-bold mb-3 text-uppercase text-muted small">Service Charges</h6>
+                <h6 class="fw-bold mb-3 text-uppercase text-muted small">Service Charges (Optional)</h6>
                 <div class="row g-3 p-4 bg-white border rounded shadow-sm mb-4">
                     <div class="col-md-6">
                         <label class="small fw-bold">Charge Category</label>
-                        <select wire:model.live="charge_category_id" class="form-select @error('charge_category_id') is-invalid @enderror">
+                        <select wire:model.live="charge_category_id" class="form-select shadow-none">
                             <option value="">Select Category</option>
                             @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->name }}</option> @endforeach
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="small fw-bold">Charge Item</label>
-                        <select wire:model.live="charge_id" class="form-select @error('charge_id') is-invalid @enderror" @if(!$charge_category_id) disabled @endif>
+                        <select wire:model.live="charge_id" class="form-select shadow-none" @if(!$charge_category_id) disabled @endif>
                             <option value="">Select Charge</option>
                             @foreach($charges as $c) <option value="{{ $c->id }}">{{ $c->name }} (৳{{ $c->standard_charge }})</option> @endforeach
                         </select>
@@ -109,19 +107,19 @@
                 </div>
 
                 <div class="row g-3">
-                    <div class="col-md-6"><label class="small fw-bold">Known Allergies</label><input type="text" wire:model="known_allergies" class="form-control"></div>
-                    <div class="col-md-6"><label class="small fw-bold">Internal Note</label><input type="text" wire:model="note" class="form-control"></div>
+                    <div class="col-md-6"><label class="small fw-bold">Known Allergies</label><input type="text" wire:model="known_allergies" class="form-control shadow-none"></div>
+                    <div class="col-md-6"><label class="small fw-bold">Internal Note</label><input type="text" wire:model="note" class="form-control shadow-none"></div>
                 </div>
             </div>
 
             <!-- Right Panel (Financials) -->
             <div class="col-lg-4 p-4 bg-light">
                 <div class="row g-3">
-                    <div class="col-12"><label class="small fw-bold">Date & Time</label><input type="datetime-local" wire:model="appointment_date" class="form-control @error('appointment_date') is-invalid @enderror"></div>
+                    <div class="col-12"><label class="small fw-bold">Date & Time</label><input type="datetime-local" wire:model="appointment_date" class="form-control shadow-none @error('appointment_date') is-invalid @enderror"></div>
 
                     <div class="col-12">
                         <label class="small fw-bold">Consultant Doctor</label>
-                        <select wire:model.live="doctor_id" class="form-select @error('doctor_id') is-invalid @enderror">
+                        <select wire:model.live="doctor_id" class="form-select shadow-none @error('doctor_id') is-invalid @enderror">
                             <option value="">Select Doctor...</option>
                             @foreach($doctors as $d) <option value="{{ $d->id }}">{{ $d->name }}</option> @endforeach
                         </select>
@@ -134,7 +132,7 @@
                         <hr>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="small fw-bold">Discount (%)</span>
-                            <input type="number" wire:model.live="discount_percentage" class="form-control w-25 text-center" style="height: 30px;">
+                            <input type="number" wire:model.live="discount_percentage" class="form-control w-25 text-center shadow-none" style="height: 30px;">
                         </div>
                         <div class="d-flex justify-content-between small text-danger"><span>Discount Amount:</span><span>- ৳{{ number_format($discount_amount, 2) }}</span></div>
                     </div>
@@ -146,7 +144,7 @@
 
                     <div class="col-12">
                         <label class="small fw-bold">Payment Method</label>
-                        <select wire:model="payment_method_id" class="form-select @error('payment_method_id') is-invalid @enderror">
+                        <select wire:model="payment_method_id" class="form-select shadow-none @error('payment_method_id') is-invalid @enderror">
                             <option value="">Select Method</option>
                             @foreach($paymentMethods as $pm) <option value="{{ $pm->id }}">{{ $pm->name }}</option> @endforeach
                         </select>
@@ -154,11 +152,11 @@
 
                     <div class="col-12">
                         <label class="small fw-bold text-success">Collection Amount (Paid)</label>
-                        <input type="number" wire:model="paid_amount" class="form-control border-success fw-bold text-success fs-4 @error('paid_amount') is-invalid @enderror">
+                        <input type="number" wire:model="paid_amount" class="form-control border-success fw-bold text-success fs-4 shadow-none @error('paid_amount') is-invalid @enderror">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-3 mt-4 fw-bold">
+                <button type="submit" class="btn btn-primary w-100 py-3 mt-4 fw-bold shadow-sm">
                     FINALIZE ADMISSION
                 </button>
             </div>

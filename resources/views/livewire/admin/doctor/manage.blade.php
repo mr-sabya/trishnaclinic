@@ -43,17 +43,19 @@
                                     @foreach($specialists as $spec) <option value="{{ $spec->id }}">{{ $spec->name }}</option> @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold">Designation *</label>
                                 <input type="text" wire:model="designation" class="form-control" placeholder="e.g. Senior Consultant">
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold">Qualification *</label>
-                                <textarea wire:model="qualification" class="form-control" placeholder="e.g. MBBS, FCPS"></textarea>
-                            </div>
-                            <div class="col-md-4">
+
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold">Experience</label>
                                 <input type="text" wire:model="experience" class="form-control" placeholder="e.g. 10 Years">
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Qualification *</label>
+                                <textarea wire:model="qualification" class="form-control" placeholder="e.g. MBBS, FCPS" rows="5"></textarea>
                             </div>
                         </div>
                     </div>

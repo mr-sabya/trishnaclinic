@@ -85,6 +85,36 @@
             left: 173mm;
         }
 
+        /* Position for the Barcode in the ID section */
+        .barcode-container {
+            position: absolute;
+            left: 173mm;
+            /* Starting position near 'ID :' label */
+            width: 28mm;
+            /* Width of the barcode */
+            /* height: 7mm; */
+            /* Height - keep it slim for the bar */
+        }
+
+        /* Ensure the barcode SVG scales correctly */
+        .barcode-container svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Optional: ID text below or above barcode */
+        .barcode-text {
+            position: absolute;
+            left: 173mm;
+            /* Just below the purple bar */
+            width: 32mm;
+            margin-top: 13px;
+            text-align: center;
+            font-size: 7pt;
+            font-family: 'Courier New', monospace;
+        }
+
         /* After "ID :" */
 
         /* UI Elements */
@@ -111,7 +141,19 @@
         <div class="val-name">{{ $opd->patient->user->name }}</div>
         <div class="val-age">{{ $opd->patient->age }}</div>
         <div class="val-date">{{ date('d-m-Y') }}</div>
-        <div class="val-id">{{ $opd->opd_number }}</div>
+
+        <!-- Barcode Generation -->
+        <div class="barcode-container">
+            @php
+            $generator = new Picqer\Barcode\BarcodeGeneratorSVG();
+            @endphp
+            {!! $generator->getBarcode($opd->opd_number, $generator::TYPE_CODE_128, 2, 30) !!}
+        </div>
+
+        <!-- Human Readable ID Text -->
+        <div class="barcode-text">
+            {{ $opd->opd_number }}
+        </div>
     </div>
 
     <!-- Floating Help Button (Screen Only) -->

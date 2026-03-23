@@ -11,66 +11,44 @@ class OpdManage extends Component
 {
     use WithFileUploads;
 
-    // Basic Info
     public $opdId;
     public $patient_id, $doctor_id, $appointment_date, $case_type = 'New Case', $is_casualty = false;
     public $refference, $symptoms_description, $note, $known_allergies;
 
-    // Symptoms Properties
     public $temp_type_id, $temp_title_id, $added_symptoms = [];
 
-    // Financial Properties
-    public $doctor_fee = 0;
-    public $hospital_fee = 0;
+    public $doctor_fee = 0, $hospital_fee = 0;
     public $charge_category_id, $charge_id, $extra_charge_amount = 0;
     public $tax_percentage = 0, $tax_amount = 0;
     public $discount_percentage = 0, $discount_amount = 0, $net_amount = 0, $paid_amount = 0;
     public $payment_method_id;
 
-    // UI & Search Properties (The ones causing your errors)
-    public $patient_search = '';
-    public $patient_results = [];
-    public $selected_patient_data = null;
-    public $showPatientModal = false;
+    public $patient_search = '', $patient_results = [], $selected_patient_data = null, $showPatientModal = false;
 
     protected $rules = [
         'patient_id' => 'required',
         'doctor_id' => 'required',
         'appointment_date' => 'required',
-        'charge_category_id' => 'required',
-        'charge_id' => 'required',
         'payment_method_id' => 'required',
         'paid_amount' => 'required|numeric|min:0',
-        'added_symptoms' => 'required|array|min:1',
+        // Charge and Symptoms removed from required rules
     ];
 
     protected $messages = [
         'patient_id.required' => 'Please search and select a patient.',
         'doctor_id.required' => 'Select a consultant doctor.',
-        'charge_category_id.required' => 'Please select a charge category.',
-        'charge_id.required' => 'Please select a specific charge item.',
-        'added_symptoms.min' => 'Add at least one symptom to the list.',
         'payment_method_id.required' => 'Select a payment method.',
     ];
 
     public function mount($id = null)
     {
-        // Default Appointment Date for New Admissions
         $this->appointment_date = now()->format('Y-m-d\TH:i');
         $this->payment_method_id = PaymentMethod::where('is_default', true)->first()?->id;
 
         if ($id) {
             $this->opdId = $id;
+            $opd = OpdAdmission::with(['patient.user', 'symptoms.type', 'symptoms.title', 'charges.chargeMaster'])->findOrFail($id);
 
-            // 1. Fetch the admission with all required relationships
-            $opd = OpdAdmission::with([
-                'patient.user',
-                'symptoms.type',
-                'symptoms.title',
-                'charges.chargeMaster'
-            ])->findOrFail($id);
-
-            // 2. Fill Basic Header Info
             $this->patient_id = $opd->patient_id;
             $this->doctor_id = $opd->doctor_id;
             $this->appointment_date = $opd->appointment_date->format('Y-m-d\TH:i');
@@ -81,10 +59,8 @@ class OpdManage extends Component
             $this->known_allergies = $opd->known_allergies;
             $this->note = $opd->note;
 
-            // 3. Populate Patient Search UI
             $this->selectPatient($opd->patient_id);
 
-            // 4. Reconstruct the Added Symptoms List for the UI Adder
             foreach ($opd->symptoms as $symptom) {
                 $this->added_symptoms[] = [
                     'type_id' => $symptom->symptom_type_id,
@@ -94,15 +70,12 @@ class OpdManage extends Component
                 ];
             }
 
-            // 5. Populate Financials from Admission Table
             $this->doctor_fee = $opd->doctor_fee;
             $this->hospital_fee = $opd->hospital_fee;
             $this->discount_percentage = $opd->discount_percentage;
             $this->discount_amount = $opd->discount_amount;
             $this->net_amount = $opd->net_amount;
 
-            // 6. Find and Populate the Service Charge (Charge Master selection)
-            // We look for the row in the charges table that has a charge_id
             $extraCharge = $opd->charges->whereNotNull('charge_id')->first();
             if ($extraCharge) {
                 $this->charge_category_id = $extraCharge->chargeMaster->charge_category_id;
@@ -112,7 +85,6 @@ class OpdManage extends Component
                 $this->tax_amount = $extraCharge->tax_amount ?? 0;
             }
 
-            // 7. Load Payment info (typically for display or partial payment logic)
             $payment = $opd->payments->first();
             if ($payment) {
                 $this->payment_method_id = $payment->payment_method_id;
@@ -121,13 +93,10 @@ class OpdManage extends Component
         }
     }
 
-    // --- Financial Calculations ---
-
     public function updatedDoctorId($id)
     {
         if ($id) {
             $doctor = Doctor::find($id);
-            // Adjust these fields based on your actual Doctor model columns
             $this->doctor_fee = $doctor->consultation_fee ?? 0;
             $this->hospital_fee = $doctor->opd_hospital_fee ?? 0;
         } else {
@@ -175,8 +144,6 @@ class OpdManage extends Component
         $this->calculateTotals();
     }
 
-    // --- Clinical / Symptoms Logic ---
-
     public function addSymptom()
     {
         $this->validate(['temp_type_id' => 'required', 'temp_title_id' => 'required']);
@@ -198,18 +165,13 @@ class OpdManage extends Component
         $this->added_symptoms = array_values($this->added_symptoms);
     }
 
-    // --- Patient Search Logic ---
-
     public function updatedPatientSearch($query)
     {
         if (strlen($query) < 2) {
             $this->patient_results = [];
             return;
         }
-        $this->patient_results = Patient::with('user')
-            ->whereHas('user', fn($u) => $u->where('name', 'like', "%$query%"))
-            ->orWhere('mrn_number', 'like', "%$query%")
-            ->limit(5)->get();
+        $this->patient_results = Patient::with('user')->whereHas('user', fn($u) => $u->where('name', 'like', "%$query%"))->orWhere('mrn_number', 'like', "%$query%")->limit(5)->get();
     }
 
     public function selectPatient($id)
@@ -227,8 +189,6 @@ class OpdManage extends Component
         $this->showPatientModal = false;
     }
 
-    // --- Save Logic ---
-
     public function save()
     {
         $this->validate();
@@ -236,7 +196,6 @@ class OpdManage extends Component
         try {
             DB::beginTransaction();
 
-            // 1. Create Admission
             $admission = OpdAdmission::create([
                 'opd_number' => OpdAdmission::generateOpdNumber(),
                 'patient_id' => $this->patient_id,
@@ -255,27 +214,31 @@ class OpdManage extends Component
                 'status' => 'admitted'
             ]);
 
-            // 2. Symptoms
-            foreach ($this->added_symptoms as $s) {
-                OpdAdmissionSymptom::create([
+            // Optional Symptoms
+            if (!empty($this->added_symptoms)) {
+                foreach ($this->added_symptoms as $s) {
+                    OpdAdmissionSymptom::create([
+                        'opd_admission_id' => $admission->id,
+                        'symptom_type_id' => $s['type_id'],
+                        'symptom_title_id' => $s['title_id']
+                    ]);
+                }
+            }
+
+            // Optional Service Charge
+            if ($this->charge_id) {
+                OpdAdmissionCharge::create([
                     'opd_admission_id' => $admission->id,
-                    'symptom_type_id' => $s['type_id'],
-                    'symptom_title_id' => $s['title_id']
+                    'charge_id' => $this->charge_id,
+                    'standard_charge' => $this->extra_charge_amount,
+                    'applied_charge' => $this->extra_charge_amount,
+                    'tax_percentage' => $this->tax_percentage,
+                    'tax_amount' => $this->tax_amount,
+                    'net_amount' => $this->extra_charge_amount + $this->tax_amount
                 ]);
             }
 
-            // 3. Service Charge
-            OpdAdmissionCharge::create([
-                'opd_admission_id' => $admission->id,
-                'charge_id' => $this->charge_id,
-                'standard_charge' => $this->extra_charge_amount,
-                'applied_charge' => $this->extra_charge_amount,
-                'tax_percentage' => $this->tax_percentage,
-                'tax_amount' => $this->tax_amount,
-                'net_amount' => $this->extra_charge_amount + $this->tax_amount
-            ]);
-
-            // 4. Payment
+            // Payment (Still required as per your rules, but can be 0)
             OpdAdmissionPayment::create([
                 'opd_admission_id' => $admission->id,
                 'payment_method_id' => $this->payment_method_id,
