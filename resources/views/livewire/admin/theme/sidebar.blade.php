@@ -2,12 +2,12 @@
     <!-- LOGO -->
     <div class="navbar-brand-box">
         <a href="{{ route('admin.home') }}" class="logo logo-dark">
-            <span class="logo-sm"><img src="{{ url('assets/backend/images/logo-sm.png') }}" alt="" height="26"></span>
-            <span class="logo-lg"><img src="{{ url('assets/backend/images/logo-dark.png') }}" alt="" height="26"></span>
+            <span class="logo-sm"><img src="{{ url('assets/frontend/logo-white.png') }}" alt="" height="26"></span>
+            <span class="logo-lg"><img src="{{ url('assets/frontend/logo-white.png') }}" alt="" height="26"></span>
         </a>
         <a href="{{ route('admin.home') }}" class="logo logo-light">
-            <span class="logo-sm"><img src="{{ url('assets/backend/images/logo-sm.png') }}" alt="" height="26"></span>
-            <span class="logo-lg"><img src="{{ url('assets/backend/images/logo-light.png') }}" alt="" height="26"></span>
+            <span class="logo-sm"><img src="{{ url('assets/frontend/logo-white.png') }}" alt="" height="26"></span>
+            <span class="logo-lg"><img src="{{ url('assets/frontend/logo-white.png') }}" alt="" height="26"></span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
             <i class="ri-record-circle-line"></i>
