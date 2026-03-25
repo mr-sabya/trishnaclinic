@@ -55,7 +55,15 @@
 
                             <div class="col-md-12">
                                 <label class="form-label fw-bold">Qualification *</label>
-                                <textarea wire:model="qualification" class="form-control" placeholder="e.g. MBBS, FCPS" rows="5"></textarea>
+                                <livewire:quill-text-editor
+                                    wire:model.live="qualification"
+                                    theme="snow" />
+                                <style>
+                                    .ql-editor {
+                                        height: 200px;
+                                    }
+                                </style>
+                                <small>e.g. MBBS, FCPS </small>
                             </div>
                         </div>
                     </div>

@@ -36,7 +36,6 @@
         .dr-name {
             font-size: 14pt;
             font-weight: bold;
-            margin-bottom: 2mm;
             color: #1a237e;
             /* Dark blue to look professional */
         }
@@ -44,6 +43,10 @@
         .dr-qualification {
             font-size: 9pt;
             margin-bottom: 1mm;
+        }
+
+        .dr-qualification p {
+            margin: 0;
         }
 
         .dr-reg {
@@ -54,7 +57,7 @@
         /* 3. PATIENT INFO AREA (Inside the Purple Bar) */
         .patient-row {
             position: absolute;
-            top: 48mm;
+            top: 49mm;
             /* ADJUST: Move down/up to center in the purple bar */
             left: 0;
             width: 210mm;
@@ -113,6 +116,10 @@
             text-align: center;
             font-size: 7pt;
             font-family: 'Courier New', monospace;
+        }
+
+        .ql-size-large {
+            font-size: 1.2em;
         }
 
         /* After "ID :" */
