@@ -171,7 +171,18 @@ class OpdManage extends Component
             $this->patient_results = [];
             return;
         }
-        $this->patient_results = Patient::with('user')->whereHas('user', fn($u) => $u->where('name', 'like', "%$query%"))->orWhere('mrn_number', 'like', "%$query%")->limit(5)->get();
+        $this->patient_results = Patient::with('user')
+            ->where(function ($q) use ($query) {
+                // Search in the related User model
+                $q->whereHas('user', function ($u) use ($query) {
+                    $u->where('name', 'like', "%$query%")
+                        ->orWhere('phone', 'like', "%$query%");
+                })
+                    // OR search in the Patient model itself
+                    ->orWhere('mrn_number', 'like', "%$query%");
+            })
+            ->limit(5)
+            ->get();
     }
 
     public function selectPatient($id)
@@ -180,6 +191,12 @@ class OpdManage extends Component
         $this->patient_id = $id;
         $this->patient_search = $this->selected_patient_data->user->name;
         $this->patient_results = [];
+    }
+
+    #[On('closeModal')]
+    public function hideModal()
+    {
+        $this->showPatientModal = false;
     }
 
     #[On('patientCreated')]

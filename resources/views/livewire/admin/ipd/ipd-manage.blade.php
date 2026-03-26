@@ -1,36 +1,74 @@
-<div class="card shadow-lg border-0">
-    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
-        <div class="position-relative col-md-5">
-            <div class="input-group">
-                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                <input type="text" wire:model.live.debounce.300ms="patient_search" class="form-control shadow-none" placeholder="Search Patient (Name/MRN)...">
+<div class="card shadow-lg border-0 position-relative">
+    <!-- Header with Search and New Patient Button -->
+    <div class="card-header bg-white py-3 border-bottom">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-primary"></i></span>
+                    <input type="text" wire:model.live.debounce.300ms="patient_search"
+                        class="form-control border-start-0 shadow-none"
+                        placeholder="Search Patient (Name/MRN/Phone)...">
+
+                    <!-- NEW PATIENT BUTTON -->
+                    <button type="button" class="btn btn-outline-primary" wire:click="$set('showPatientModal', true)">
+                        <i class="bi bi-person-plus-fill me-1"></i> New
+                    </button>
+                </div>
+
+                @if(!empty($patient_results))
+                <div class="list-group position-absolute shadow-lg mt-1 w-100" style="z-index: 1060; max-width: 400px;">
+                    @foreach($patient_results as $p)
+                    <button type="button" wire:click="selectPatient({{ $p->id }})" class="list-group-item list-group-item-action py-3 border-start-0 border-end-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold text-primary">{{ $p->user->name }}</div>
+                                <small class="text-muted">MRN: {{ $p->mrn_number }} | Ph: {{ $p->user->phone }}</small>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </div>
+                    </button>
+                    @endforeach
+                </div>
+                @endif
             </div>
-            @if(!empty($patient_results))
-            <div class="list-group position-absolute w-100 shadow-lg mt-1" style="z-index: 1050;">
-                @foreach($patient_results as $p)
-                <button type="button" wire:click="selectPatient({{ $p->id }})" class="list-group-item list-group-item-action py-3">
-                    <div class="fw-bold">{{ $p->user->name }}</div>
-                    <small class="text-muted">MRN: {{ $p->mrn_number }}</small>
-                </button>
-                @endforeach
+            <div class="col-md-7 text-end">
+                <span class="badge bg-soft-primary text-primary border border-primary px-3 py-2">IPD ADMISSION FORM</span>
             </div>
-            @endif
         </div>
     </div>
 
-    <form wire:submit.prevent="save" class="card-body p-0">
+    <form wire:submit.prevent="save">
         <div class="row g-0">
-            <!-- Left Side -->
+            <!-- Left Side: Patient & Medical Info -->
             <div class="col-lg-8 border-end p-4">
+
+                <!-- Selected Patient Display -->
                 @if($selected_patient_data)
-                <div class="bg-light p-3 rounded mb-4 border-start border-primary border-4">
-                    <h5 class="fw-bold mb-0">{{ $selected_patient_data->user->name }}</h5>
-                    <small>MRN: {{ $selected_patient_data->mrn_number }} | Age: {{ $selected_patient_data->age }}</small>
+                <div class="card bg-light border-0 mb-4">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="avatar-sm bg-primary text-white rounded-circle p-2 me-3">
+                            <i class="bi bi-person-check-fill fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 class="fw-bold mb-0 text-dark">{{ $selected_patient_data->user->name }}</h5>
+                            <p class="mb-0 small text-muted">
+                                MRN: <span class="fw-bold text-dark">{{ $selected_patient_data->mrn_number }}</span> |
+                                Gender: <span class="fw-bold text-dark">{{ $selected_patient_data->gender }}</span> |
+                                Age: <span class="fw-bold text-dark">{{ $selected_patient_data->age }}</span>
+                            </p>
+                        </div>
+                        <button type="button" class="btn-close shadow-none" wire:click="$set('selected_patient_data', null)"></button>
+                    </div>
+                </div>
+                @else
+                <div class="alert alert-warning border-dashed d-flex align-items-center mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Please search and select a patient to begin admission.
                 </div>
                 @endif
 
                 <!-- BED SELECTION -->
-                <h6 class="fw-bold mb-3 text-uppercase text-muted small"><i class="bi bi-door-open me-1"></i>Bed Assignment</h6>
+                <h6 class="fw-bold mb-3 text-uppercase text-muted small"><i class="bi bi-door-open me-1"></i> Bed Assignment</h6>
                 <div class="row g-3 p-3 bg-white border rounded shadow-sm mb-4">
                     <div class="col-md-4">
                         <label class="small fw-bold">Floor</label>
@@ -54,58 +92,149 @@
                             <option value="{{ $bed->id }}">{{ $bed->name }}</option>
                             @endforeach
                         </select>
+                        @error('bed_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                 </div>
 
-                <!-- (Same Symptoms and Charges logic as OPDManage) -->
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Symptom Category</label>
-                        <select wire:model.live="temp_type_id" class="form-select">
+                <!-- SYMPTOMS SECTION -->
+                <h6 class="fw-bold mb-3 text-uppercase text-muted small"><i class="bi bi-thermometer-high me-1"></i> Symptoms & Complaints</h6>
+                <div class="row g-3 p-3 bg-white border rounded shadow-sm mb-4">
+                    <div class="col-md-5">
+                        <label class="small fw-bold">Type</label>
+                        <select wire:model.live="temp_type_id" class="form-select shadow-none">
                             <option value="">Select</option>
                             @foreach($symptomTypes as $st) <option value="{{ $st->id }}">{{ $st->name }}</option> @endforeach
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label class="small fw-bold">Symptom Title</label>
-                        <div class="input-group">
-                            <select wire:model="temp_title_id" class="form-select">
-                                <option value="">Select</option>
-                                @foreach($symptomTitles as $title) <option value="{{ $title->id }}">{{ $title->title }}</option> @endforeach
-                            </select>
-                            <button type="button" wire:click="addSymptom" class="btn btn-dark">Add</button>
+                    <div class="col-md-5">
+                        <label class="small fw-bold">Symptom</label>
+                        <select wire:model="temp_title_id" class="form-select shadow-none">
+                            <option value="">Select</option>
+                            @foreach($symptomTitles as $title) <option value="{{ $title->id }}">{{ $title->title }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" wire:click="addSymptom" class="btn btn-dark w-100">Add</button>
+                    </div>
+
+                    @if(!empty($added_symptoms))
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mt-2 mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Title</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($added_symptoms as $index => $s)
+                                    <tr>
+                                        <td>{{ $s['type_name'] }}</td>
+                                        <td>{{ $s['title_name'] }}</td>
+                                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger px-1 py-0" wire:click="removeSymptom({{ $index }})"><i class="bi bi-x"></i></button></td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
+                    @endif
+                </div>
+
+                <!-- EXTRA CHARGES -->
+                <h6 class="fw-bold mb-3 text-uppercase text-muted small"><i class="bi bi-plus-circle me-1"></i> Admission / Service Charges</h6>
+                <div class="row g-3 p-3 bg-white border rounded shadow-sm">
+                    <div class="col-md-6">
+                        <label class="small fw-bold">Charge Category</label>
+                        <select wire:model.live="charge_category_id" class="form-select shadow-none">
+                            <option value="">Select Category</option>
+                            @foreach($categories as $cat) <option value="{{ $cat->id }}">{{ $cat->name }}</option> @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small fw-bold">Charge Name</label>
+                        <select wire:model.live="charge_id" class="form-select shadow-none" @if(!$charge_category_id) disabled @endif>
+                            <option value="">Select Charge</option>
+                            @foreach($charges as $c) <option value="{{ $c->id }}">{{ $c->name }}</option> @endforeach
+                        </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Side (Pricing) -->
+            <!-- Right Side: Pricing & Finalize -->
             <div class="col-lg-4 p-4 bg-light">
                 <div class="mb-3">
-                    <label class="small fw-bold">Admission Date</label>
-                    <input type="datetime-local" wire:model="admission_date" class="form-control shadow-none">
+                    <label class="small fw-bold text-muted">ADMISSION DATE <span class="text-danger">*</span></label>
+                    <input type="datetime-local" wire:model="admission_date" class="form-control shadow-none @error('admission_date') is-invalid @enderror">
                 </div>
+
                 <div class="mb-3">
-                    <label class="small fw-bold">Consultant Doctor</label>
-                    <select wire:model.live="doctor_id" class="form-select shadow-none">
+                    <label class="small fw-bold text-muted">CONSULTANT DOCTOR <span class="text-danger">*</span></label>
+                    <select wire:model.live="doctor_id" class="form-select shadow-none @error('doctor_id') is-invalid @enderror">
                         <option value="">Select Doctor</option>
-                        @foreach($doctors as $d) <option value="{{ $d->id }}">{{ $d->name }}</option> @endforeach
+                        @foreach($doctors as $d) <option value="{{ $d->id }}">{{ $d->user->name ?? $d->name }}</option> @endforeach
                     </select>
                 </div>
 
-                <div class="bg-primary text-white p-4 rounded shadow-sm my-4">
-                    <div class="d-flex justify-content-between"><small>Net Total Bill:</small>
-                        <h3 class="fw-bold mb-0">৳{{ number_format($net_amount, 2) }}</h3>
+                <hr>
+
+                <!-- Financial Breakdown -->
+                <div class="p-3 bg-white rounded shadow-sm border mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Consultation Fee:</span>
+                        <span class="fw-bold">৳{{ number_format($doctor_fee, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Admission Fee:</span>
+                        <span class="fw-bold">৳{{ number_format($hospital_fee, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Extra Charge:</span>
+                        <span class="fw-bold">৳{{ number_format($extra_charge_amount, 2) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-danger">
+                        <span>Tax ({{ $tax_percentage }}%):</span>
+                        <span class="fw-bold">৳{{ number_format($tax_amount, 2) }}</span>
+                    </div>
+                    @if($discount_percentage > 0)
+                    <div class="d-flex justify-content-between mb-2 text-success">
+                        <span>Discount ({{ $discount_percentage }}%):</span>
+                        <span class="fw-bold">-৳{{ number_format($discount_amount, 2) }}</span>
+                    </div>
+                    @endif
+                    <div class="d-flex justify-content-between mt-3 pt-3 border-top">
+                        <h5 class="fw-bold mb-0">Grand Total:</h5>
+                        <h5 class="fw-bold mb-0 text-primary">৳{{ number_format($net_amount, 2) }}</h5>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="small fw-bold">Advance Payment</label>
-                    <input type="number" wire:model="paid_amount" class="form-control form-control-lg border-success text-success fw-bold">
+                    <label class="small fw-bold">Payment Method <span class="text-danger">*</span></label>
+                    <select wire:model="payment_method_id" class="form-select shadow-none @error('payment_method_id') is-invalid @enderror">
+                        @foreach($paymentMethods as $pm) <option value="{{ $pm->id }}">{{ $pm->name }}</option> @endforeach
+                    </select>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow">FINALIZE ADMISSION</button>
+                <div class="mb-4">
+                    <label class="small fw-bold text-success">ADVANCE PAYMENT <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-success text-white border-success">৳</span>
+                        <input type="number" wire:model="paid_amount" class="form-control form-control-lg border-success text-success fw-bold shadow-none @error('paid_amount') is-invalid @enderror">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-lg">
+                    <span wire:loading.remove wire:target="save"><i class="bi bi-check-circle me-1"></i> FINALIZE ADMISSION</span>
+                    <span wire:loading wire:target="save" class="spinner-border spinner-border-sm"></span>
+                </button>
             </div>
         </div>
     </form>
+
+    <!-- Modal Inclusion -->
+    @if($showPatientModal)
+    @livewire('admin.common.quick-patient-modal')
+    @endif
 </div>

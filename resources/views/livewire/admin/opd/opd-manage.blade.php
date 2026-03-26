@@ -10,7 +10,7 @@
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
                     <input type="text" wire:model.live.debounce.300ms="patient_search"
                         class="form-control border-start-0 shadow-none @error('patient_id') is-invalid @enderror"
-                        placeholder="Search Patient (Name/MRN)...">
+                        placeholder="Search Patient (Name/MRN/Phone)...">
                 </div>
                 @if(!empty($patient_results))
                 <div class="list-group position-absolute w-100 shadow-lg mt-1" style="z-index: 1050;">

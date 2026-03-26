@@ -38,6 +38,7 @@ class Index extends Component
     public function render()
     {
         $users = User::with('staff.adminDepartment')
+            ->where('role', '!=', 'patient')
             ->where(function ($q) {
                 $q->where('name', 'like', "%{$this->search}%")
                     ->orWhere('phone', 'like', "%{$this->search}%");
