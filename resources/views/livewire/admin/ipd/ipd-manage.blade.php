@@ -44,26 +44,37 @@
 
                 <!-- Selected Patient Display -->
                 @if($selected_patient_data)
-                <div class="card bg-light border-0 mb-4">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="avatar-sm bg-primary text-white rounded-circle p-2 me-3">
-                            <i class="bi bi-person-check-fill fs-4"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5 class="fw-bold mb-0 text-dark">{{ $selected_patient_data->user->name }}</h5>
-                            <p class="mb-0 small text-muted">
-                                MRN: <span class="fw-bold text-dark">{{ $selected_patient_data->mrn_number }}</span> |
-                                Gender: <span class="fw-bold text-dark">{{ $selected_patient_data->gender }}</span> |
-                                Age: <span class="fw-bold text-dark">{{ $selected_patient_data->age }}</span>
-                            </p>
-                        </div>
-                        <button type="button" class="btn-close shadow-none" wire:click="$set('selected_patient_data', null)"></button>
+                <div class="d-flex align-items-center bg-light p-3 rounded mb-4 border-start border-primary border-4 shadow-sm position-relative">
+
+                    <!-- 1. Image First -->
+                    <div class="me-3">
+                        <img src="{{ asset('storage/'.$selected_patient_data->photo) }}"
+                            class="rounded shadow-sm border"
+                            width="80"
+                            height="80"
+                            style="object-fit: cover;"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($selected_patient_data->user->name) }}&background=0D6EFD&color=fff'">
                     </div>
-                </div>
-                @else
-                <div class="alert alert-warning border-dashed d-flex align-items-center mb-4">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Please search and select a patient to begin admission.
+
+                    <!-- 2. Patient Details -->
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1 fw-bold text-primary">{{ $selected_patient_data->user->name }}</h4>
+                        <p class="mb-0 text-muted">
+                            MRN: <strong>{{ $selected_patient_data->mrn_number }}</strong> |
+                            Gender: <strong>{{ $selected_patient_data->gender->value }}</strong> |
+                            Age: <strong>{{ $selected_patient_data->age }}</strong>
+                        </p>
+                    </div>
+
+                    <!-- 3. Change Button (on the far right) -->
+                    <div class="ms-auto align-self-start">
+                        <button type="button"
+                            wire:click="clearPatient"
+                            class="btn btn-sm btn-outline-danger shadow-none border-0"
+                            title="Remove and search again">
+                            <i class="bi bi-x-circle-fill me-1"></i> Change Patient
+                        </button>
+                    </div>
                 </div>
                 @endif
 

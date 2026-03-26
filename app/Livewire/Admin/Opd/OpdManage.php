@@ -270,6 +270,15 @@ class OpdManage extends Component
         }
     }
 
+    // Add this method inside your OpdManage class
+    public function clearPatient()
+    {
+        $this->selected_patient_data = null;
+        $this->patient_id = null;
+        $this->patient_search = '';
+        $this->patient_results = [];
+    }
+
     public function render()
     {
         return view('livewire.admin.opd.opd-manage', [

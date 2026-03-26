@@ -32,15 +32,36 @@
             <!-- Left Panel -->
             <div class="col-lg-8 border-end p-4">
                 @if($selected_patient_data)
-                <div class="bg-light p-4 rounded mb-4 border-start border-primary border-4 shadow-sm">
-                    <div class="row align-items-center">
-                        <div class="col-md-9">
-                            <h4 class="mb-1 fw-bold text-primary">{{ $selected_patient_data->user->name }}</h4>
-                            <p class="mb-0 text-muted">MRN: <strong>{{ $selected_patient_data->mrn_number }}</strong> | Gender: <strong>{{ $selected_patient_data->gender->value }}</strong></p>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <img src="{{ asset('storage/'.$selected_patient_data->photo) }}" class="rounded shadow-sm" width="80" onerror="this.src='https://ui-avatars.com/api/?name={{ $selected_patient_data->user->name }}'">
-                        </div>
+                <div class="d-flex align-items-center bg-light p-3 rounded mb-4 border-start border-primary border-4 shadow-sm position-relative">
+
+                    <!-- 1. Image First -->
+                    <div class="me-3">
+                        <img src="{{ asset('storage/'.$selected_patient_data->photo) }}"
+                            class="rounded shadow-sm border"
+                            width="80"
+                            height="80"
+                            style="object-fit: cover;"
+                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($selected_patient_data->user->name) }}&background=0D6EFD&color=fff'">
+                    </div>
+
+                    <!-- 2. Patient Details -->
+                    <div class="flex-grow-1">
+                        <h4 class="mb-1 fw-bold text-primary">{{ $selected_patient_data->user->name }}</h4>
+                        <p class="mb-0 text-muted">
+                            MRN: <strong>{{ $selected_patient_data->mrn_number }}</strong> |
+                            Gender: <strong>{{ $selected_patient_data->gender->value }}</strong> |
+                            Age: <strong>{{ $selected_patient_data->age }}</strong>
+                        </p>
+                    </div>
+
+                    <!-- 3. Change Button (on the far right) -->
+                    <div class="ms-auto align-self-start">
+                        <button type="button"
+                            wire:click="clearPatient"
+                            class="btn btn-sm btn-outline-danger shadow-none border-0"
+                            title="Remove and search again">
+                            <i class="bi bi-x-circle-fill me-1"></i> Change Patient
+                        </button>
                     </div>
                 </div>
                 @endif

@@ -6,34 +6,11 @@ use App\Models\{Patient, User};
 use App\Enums\{UserRole, Gender, BloodGroup, MaritalStatus};
 use Livewire\Component;
 use Illuminate\Support\Facades\{Hash, DB};
-use Carbon\Carbon;
 
 class QuickPatientModal extends Component
 {
-    // Form Properties
     public $name, $phone, $email, $gender_val, $blood_group, $marital_status;
-    public $date_of_birth, $guardian_name, $address;
-    public $age_year, $age_month, $age_day;
-
-    public function updatedDateOfBirth($value)
-    {
-        if ($value) {
-            $diff = Carbon::parse($value)->diff(now());
-            $this->age_year = $diff->y;
-            $this->age_month = $diff->m;
-        }
-    }
-
-    public function updatedAgeYear() { $this->calculateDob(); }
-    public function updatedAgeMonth() { $this->calculateDob(); }
-
-    private function calculateDob()
-    {
-        $this->date_of_birth = now()
-            ->subYears((int)$this->age_year)
-            ->subMonths((int)$this->age_month)
-            ->format('Y-m-d');
-    }
+    public $guardian_name, $address, $age_year, $age_month;
 
     public function save()
     {
@@ -41,10 +18,13 @@ class QuickPatientModal extends Component
             'name' => 'required|string|max:255',
             'phone' => 'required|unique:users,phone',
             'gender_val' => 'required',
-            'date_of_birth' => 'required|date',
+            'age_year' => 'required|numeric|min:0',
         ]);
 
-        $patient = DB::transaction(function () {
+        // Format: "25Y 6M" or "25Y"
+        $ageString = $this->age_year . 'Y' . ($this->age_month ? ' ' . $this->age_month . 'M' : '');
+
+        $patient = DB::transaction(function () use ($ageString) {
             $user = User::create([
                 'name' => $this->name,
                 'phone' => $this->phone,
@@ -58,19 +38,15 @@ class QuickPatientModal extends Component
                 'mrn_number' => Patient::generateMrn(),
                 'guardian_name' => $this->guardian_name,
                 'gender' => $this->gender_val,
-                'date_of_birth' => $this->date_of_birth,
+                'age' => $ageString,
                 'blood_group' => $this->blood_group,
                 'marital_status' => $this->marital_status,
                 'address' => $this->address,
             ]);
         });
 
-        // Dispatch event to parent (Appointment, OPD, or IPD)
-        $this->dispatch('patientCreated', 
-            id: $patient->id, 
-            name: $patient->user->name
-        );
-
+        $this->dispatch('patientCreated', id: $patient->id, name: $patient->user->name);
+        $this->dispatch('closeModal');
         $this->reset();
     }
 

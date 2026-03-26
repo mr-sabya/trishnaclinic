@@ -67,7 +67,7 @@
                                     <td>
                                         <small>{{ $patient->gender->value }}</small>
                                         <div class="text-muted" style="font-size: 0.8rem;">
-                                            {{ $patient->detailed_age['y'] }}Y {{ $patient->detailed_age['m'] }}M {{ $patient->detailed_age['d'] }}D
+                                            {{ $patient->age }}
                                         </div>
                                     </td>
                                     <td>
