@@ -122,10 +122,10 @@
                 <div class="card shadow-sm border-0 mb-3 text-center p-4">
                     <label class="form-label fw-bold d-block text-start">Doctor Photo</label>
                     <div class="mb-3">
-                        @if ($photo)
-                        <img src="{{ $photo->temporaryUrl() }}" class="rounded-circle border" width="120" height="120">
-                        @elseif($existingPhoto)
+                        @if($existingPhoto)
                         <img src="{{ asset('storage/'.$existingPhoto) }}" class="rounded-circle border" width="120" height="120">
+                        @elseif ($photo)
+                        <img src="{{ $photo->temporaryUrl() }}" class="rounded-circle border" width="120" height="120">
                         @else
                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto" style="width:120px; height:120px;">
                             <i class="ri-user-follow-line fs-1 text-muted"></i>
