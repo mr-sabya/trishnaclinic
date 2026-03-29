@@ -83,7 +83,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
+                        <label class="small">&nbsp;</label>
                         <button type="button" wire:click="addSymptom" class="btn btn-dark w-100 shadow-none">Add</button>
                     </div>
 
