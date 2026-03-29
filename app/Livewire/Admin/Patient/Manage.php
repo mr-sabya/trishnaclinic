@@ -20,6 +20,10 @@ class Manage extends Component
     public $date_of_birth, $identification_number, $address, $known_allergies, $remarks;
     public $tpa_id, $insurance_id, $tpa_validity, $photo, $existingPhoto, $mrn_display;
 
+    // Searchable TPA Properties
+    public $tpa_search = '';
+    public $selected_tpa_name = 'Direct/Cash';
+
     // Age Helper Properties (YY - MM)
     public $age_year, $age_month;
 
@@ -27,7 +31,7 @@ class Manage extends Component
     {
         if ($id) {
             $this->patientId = $id;
-            $patient = Patient::with('user')->findOrFail($id);
+            $patient = Patient::with(['user', 'tpa'])->findOrFail($id);
 
             // Map User Data
             $this->name = $patient->user->name;
@@ -46,13 +50,16 @@ class Manage extends Component
             $this->address = $patient->address;
             $this->known_allergies = $patient->known_allergies;
             $this->remarks = $patient->remarks;
+
+            // Map TPA Data
             $this->tpa_id = $patient->tpa_id;
+            $this->selected_tpa_name = $patient->tpa ? $patient->tpa->name : 'Direct/Cash';
+
             $this->insurance_id = $patient->insurance_id;
             $this->tpa_validity = $patient->tpa_validity ? $patient->tpa_validity->format('Y-m-d') : null;
             $this->existingPhoto = $patient->photo;
 
-            // --- PARSE AGE STRING FOR EDITING ---
-            // Breaks "25Y 6M" into $age_year = 25 and $age_month = 6
+            // Parse Age String
             if ($patient->age) {
                 preg_match('/(\d+)Y/', $patient->age, $years);
                 preg_match('/(\d+)M/', $patient->age, $months);
@@ -60,6 +67,13 @@ class Manage extends Component
                 $this->age_month = $months[1] ?? null;
             }
         }
+    }
+
+    public function selectTpa($id, $name)
+    {
+        $this->tpa_id = $id;
+        $this->selected_tpa_name = $name;
+        $this->tpa_search = ''; // Reset search after selection
     }
 
     public function save()
@@ -71,18 +85,14 @@ class Manage extends Component
             'photo' => 'nullable|image|max:1024',
         ]);
 
-        // --- CONSTRUCT AGE STRING FOR DATABASE ---
         $ageString = trim(
             ($this->age_year ? $this->age_year . 'Y ' : '') .
                 ($this->age_month ? $this->age_month . 'M' : '')
         );
 
-        // dd($ageString);
-
         DB::transaction(function () use ($ageString) {
             $patient_record = $this->patientId ? Patient::find($this->patientId) : null;
 
-            // 1. Update/Create User
             $user = User::updateOrCreate(
                 ['id' => $patient_record ? $patient_record->user_id : null],
                 [
@@ -94,13 +104,11 @@ class Manage extends Component
                 ]
             );
 
-            // 2. Handle Photo
             $photoPath = $this->existingPhoto;
             if ($this->photo) {
                 $photoPath = $this->photo->store('patients', 'public');
             }
 
-            // 3. Update/Create Patient
             Patient::updateOrCreate(
                 ['id' => $this->patientId],
                 [
@@ -129,8 +137,17 @@ class Manage extends Component
 
     public function render()
     {
+        // Filter TPAs based on search input
+        $tpas = Tpa::where('status', true)
+            ->when($this->tpa_search, function ($query) {
+                $query->where('name', 'like', '%' . $this->tpa_search . '%');
+            })
+            ->orderBy('name', 'asc')
+            ->limit(10)
+            ->get();
+
         return view('livewire.admin.patient.manage', [
-            'tpas' => Tpa::where('status', true)->get(),
+            'tpas' => $tpas,
             'genders' => Gender::cases(),
             'blood_groups' => BloodGroup::cases(),
             'marital_statuses' => MaritalStatus::cases(),
