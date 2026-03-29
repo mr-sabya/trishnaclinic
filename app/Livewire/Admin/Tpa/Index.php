@@ -6,33 +6,46 @@ use App\Models\Tpa;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class Index extends Component
 {
     use WithPagination;
 
-    // DataTable State
     public $search = '';
     public $perPage = 10;
-    public $sortBy = 'name';
-    public $sortDir = 'ASC';
+    public $sortBy = 'name', $sortDir = 'ASC';
 
-    // Form State
     public $showModal = false;
     public $tpaId = null;
     public $name, $code, $contact_number, $address, $contact_person_name, $contact_person_phone, $status = true;
 
     protected $paginationTheme = 'bootstrap';
 
-    public function updatingSearch()
+    // Auto-generate code when Name is updated
+    public function updatedName()
     {
-        $this->resetPage();
+        $this->generateCode();
     }
 
-    public function setSortBy($field)
+    // Auto-generate code when Contact Number is updated
+    public function updatedContactNumber()
     {
-        $this->sortDir = ($this->sortBy === $field && $this->sortDir === 'ASC') ? 'DESC' : 'ASC';
-        $this->sortBy = $field;
+        $this->generateCode();
+    }
+
+    private function generateCode()
+    {
+        // Only auto-generate if we are creating a NEW TPA (not editing)
+        // Or if the code field is currently empty
+        if (!$this->tpaId) {
+            $namePart = Str::upper(Str::substr(preg_replace('/[^A-Za-z0-0]/', '', $this->name), 0, 3));
+            $phonePart = Str::substr($this->contact_number, -4);
+
+            if ($namePart || $phonePart) {
+                $this->code = $namePart . $phonePart;
+            }
+        }
     }
 
     public function openModal($id = null)
@@ -61,14 +74,11 @@ class Index extends Component
             'name' => 'required|string|max:255',
             'code' => ['required', 'string', Rule::unique('tpas')->ignore($this->tpaId)],
             'contact_number' => 'required|string',
-            'contact_person_name' => 'nullable|string',
-            'contact_person_phone' => 'nullable|string',
-            'address' => 'nullable|string',
         ]);
 
         Tpa::updateOrCreate(['id' => $this->tpaId], [
             'name' => $this->name,
-            'code' => $this->code,
+            'code' => Str::upper($this->code),
             'contact_number' => $this->contact_number,
             'address' => $this->address,
             'contact_person_name' => $this->contact_person_name,
@@ -78,6 +88,18 @@ class Index extends Component
 
         $this->showModal = false;
         session()->flash('success', $this->tpaId ? 'TPA updated successfully.' : 'TPA created successfully.');
+    }
+
+    // ... setSortBy, updatingSearch, delete and render methods remain same ...
+    public function setSortBy($field)
+    {
+        $this->sortDir = ($this->sortBy === $field && $this->sortDir === 'ASC') ? 'DESC' : 'ASC';
+        $this->sortBy = $field;
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
     }
 
     public function delete($id)
@@ -95,8 +117,6 @@ class Index extends Component
             ->orderBy($this->sortBy, $this->sortDir)
             ->paginate($this->perPage);
 
-        return view('livewire.admin.tpa.index', [
-            'tpas' => $tpas
-        ]);
+        return view('livewire.admin.tpa.index', ['tpas' => $tpas]);
     }
 }

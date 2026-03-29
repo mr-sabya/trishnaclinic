@@ -65,51 +65,64 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="small fw-bold text-primary mb-1">TPA Selection</label>
-                                <div class="dropdown">
+                                <label class="small fw-bold text-primary mb-1">Referrer / TPA Selection</label>
+                                <div class="dropdown position-relative">
+                                    <!-- Search Input Group -->
                                     <div class="input-group input-group-sm border rounded bg-white mb-2">
                                         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
                                         <input type="text"
                                             class="form-control border-0 shadow-none py-2"
-                                            placeholder="Search TPA..."
+                                            placeholder="Search Referrer/TPA..."
                                             wire:model.live.debounce.300ms="tpa_search"
-                                            data-bs-toggle="dropdown">
-                                        @if($tpa_id)
-                                        <button class="btn btn-link text-danger btn-sm border-0 shadow-none" type="button" wire:click="selectTpa(null, 'Direct/Cash')">
+                                            wire:click="$set('showTpaDropdown', true)">
+
+                                        <!-- Clear Button: Only shows if a TPA is selected or search is active -->
+                                        @if($tpa_id || $tpa_search)
+                                        <button class="btn btn-link text-danger btn-sm border-0 shadow-none" type="button"
+                                            wire:click="selectTpa(null, 'No Referrer Selected'); $set('showTpaDropdown', false)">
                                             <i class="bi bi-x-circle-fill"></i>
                                         </button>
                                         @endif
                                     </div>
 
-                                    <div class="p-2 border rounded bg-white d-flex align-items-center mb-3">
-                                        <div class="bg-primary bg-opacity-10 text-primary rounded px-2 py-1 me-2">
-                                            <i class="bi bi-building"></i>
+                                    <!-- Current Selection Display -->
+                                    <div class="p-2 border rounded bg-white d-flex align-items-center mb-1">
+                                        <div class="{{ $tpa_id ? 'bg-primary' : 'bg-secondary' }} bg-opacity-10 text-{{ $tpa_id ? 'primary' : 'secondary' }} rounded px-2 py-1 me-2">
+                                            <i class="bi bi-person-badge"></i>
                                         </div>
-                                        <span class="small fw-bold text-dark">{{ $selected_tpa_name }}</span>
+                                        <span class="small fw-bold {{ $tpa_id ? 'text-dark' : 'text-muted italic' }}">
+                                            {{ $tpa_id ? $selected_tpa_name : 'No Referrer Selected' }}
+                                        </span>
                                     </div>
 
-                                    <ul class="dropdown-menu w-100 shadow-sm border-light" style="max-height: 200px; overflow-y: auto;">
-                                        <li>
-                                            <a class="dropdown-item small py-2" href="javascript:void(0)" wire:click="selectTpa(null, 'Direct/Cash')">
-                                                <i class="bi bi-wallet2 me-2"></i> Direct/Cash (Default)
-                                            </a>
-                                        </li>
-                                        <div class="dropdown-divider"></div>
+                                    <!-- Dropdown Menu (Controlled by Livewire) -->
+                                    <ul class="dropdown-menu w-100 shadow-sm border-light {{ $showTpaDropdown ? 'show' : '' }}"
+                                        style="max-height: 200px; overflow-y: auto; display: {{ $showTpaDropdown ? 'block' : 'none' }}; top: 42px; z-index: 1060;">
+
                                         @forelse($tpas as $t)
                                         <li>
                                             <a class="dropdown-item small py-2 d-flex justify-content-between align-items-center"
                                                 href="javascript:void(0)"
                                                 wire:click="selectTpa({{ $t->id }}, '{{ $t->name }}')">
-                                                {{ $t->name }}
+                                                <span><i class="bi bi-building me-2 text-muted"></i> {{ $t->name }}</span>
                                                 @if($tpa_id == $t->id) <i class="bi bi-check-circle-fill text-primary"></i> @endif
                                             </a>
                                         </li>
                                         @empty
-                                        <li class="px-3 py-2 small text-muted">No results found</li>
+                                        <li class="px-3 py-2 small text-muted text-center">
+                                            <i class="bi bi-exclamation-circle me-1"></i> No matches found
+                                        </li>
                                         @endforelse
                                     </ul>
                                 </div>
                             </div>
+
+                            <!-- Outside Click Overlay: Closes dropdown when clicking elsewhere -->
+                            @if($showTpaDropdown)
+                            <div wire:click="$set('showTpaDropdown', false)"
+                                style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1050; background: transparent;">
+                            </div>
+                            @endif
 
                             @if($tpa_id)
                             <div class="mb-3">

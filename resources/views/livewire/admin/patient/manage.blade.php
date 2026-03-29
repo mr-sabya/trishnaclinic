@@ -96,18 +96,18 @@
                         <h6 class="text-uppercase text-muted fw-bold mb-4 small" style="letter-spacing: 1px;">Medical & Photo</h6>
 
                         <div class="mb-4">
-                            <label class="form-label small fw-bold">Patient Photograph</label>
-                            <div class="d-flex align-items-center p-3 border rounded bg-white">
+                            <label class="form-label small fw-bold text-muted">Patient Photograph</label>
+                            <div class="d-flex align-items-center p-3 border rounded bg-white shadow-sm">
                                 @if($photo)
-                                <img src="{{ $photo->temporaryUrl() }}" class="rounded shadow-sm" width="70" height="70" style="object-fit: cover;">
+                                <img src="{{ $photo->temporaryUrl() }}" class="rounded shadow-sm border" width="70" height="70" style="object-fit: cover;">
                                 @elseif($existingPhoto)
-                                <img src="{{ asset('storage/'.$existingPhoto) }}" class="rounded shadow-sm" width="70" height="70" style="object-fit: cover;">
+                                <img src="{{ asset('storage/'.$existingPhoto) }}" class="rounded shadow-sm border" width="70" height="70" style="object-fit: cover;">
                                 @else
                                 <div class="bg-secondary text-white rounded d-flex align-items-center justify-content-center" style="width:70px; height:70px;"><i class="bi bi-person-fill fs-2"></i></div>
                                 @endif
                                 <div class="ms-3 flex-grow-1">
-                                    <input type="file" wire:model="photo" class="form-control">
-                                    <div wire:loading wire:target="photo" class="small text-primary mt-1">Uploading...</div>
+                                    <input type="file" wire:model="photo" class="form-control form-control-sm">
+                                    <div wire:loading wire:target="photo" class="x-small text-primary mt-1">Uploading...</div>
                                 </div>
                             </div>
                         </div>
@@ -117,61 +117,63 @@
                             <textarea wire:model="known_allergies" class="form-control border-danger-subtle" rows="2" placeholder="List any allergies..."></textarea>
                         </div>
 
-                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-top pt-3 small" style="letter-spacing: 1px;">Insurance (TPA)</h6>
+                        <h6 class="text-uppercase text-muted fw-bold mb-3 border-top pt-3 small" style="letter-spacing: 1px;">Referral / TPA</h6>
                         <div class="row g-2">
-                            <!-- Searchable TPA Field -->
+                            <!-- Manual Dropdown Implementation -->
                             <div class="col-12 mb-2">
-                                <label class="small fw-bold text-muted mb-1">TPA Selection</label>
-                                <div class="dropdown">
-                                    <div class="input-group border rounded">
-                                        <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
+                                <label class="small fw-bold text-muted mb-1">Referrer (TPA)</label>
+                                <div class="position-relative">
+                                    <div class="input-group border rounded shadow-sm bg-white">
+                                        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
                                         <input type="text"
                                             class="form-control border-0 shadow-none"
-                                            placeholder="Search TPA..."
+                                            placeholder="Search Referrer..."
                                             wire:model.live.debounce.300ms="tpa_search"
-                                            data-bs-toggle="dropdown">
-                                        @if($tpa_id)
-                                        <button class="btn btn-link text-danger btn-sm border-0" type="button" wire:click="selectTpa(null, 'Direct/Cash')">
+                                            wire:click="$set('showTpaDropdown', true)">
+                                        @if($tpa_id || !empty($tpa_search))
+                                        <button class="btn btn-link text-danger btn-sm border-0" type="button" wire:click="selectTpa(null, 'No Referrer (Direct)')">
                                             <i class="bi bi-x-circle-fill"></i>
                                         </button>
                                         @endif
                                     </div>
 
-                                    <div class="mt-1">
-                                        <span class="badge {{ $tpa_id ? 'bg-primary' : 'bg-secondary' }} w-100 py-2 text-start px-2">
-                                            <i class="bi bi-building me-1"></i> {{ $selected_tpa_name }}
+                                    <!-- Selection Badge -->
+                                    <div class="mt-2">
+                                        <span class="badge {{ $tpa_id ? 'bg-primary' : 'bg-secondary' }} w-100 py-2 text-start px-2 fw-normal">
+                                            <i class="bi bi-person-badge me-1"></i> {{ $selected_tpa_name }}
                                         </span>
                                     </div>
 
-                                    <ul class="dropdown-menu w-100 shadow-sm border-light mt-1" style="max-height: 250px; overflow-y: auto;">
-                                        <li>
-                                            <a class="dropdown-item small py-2" href="javascript:void(0)" wire:click="selectTpa(null, 'Direct/Cash')">
-                                                <em>Direct/Cash (Default)</em>
-                                            </a>
-                                        </li>
-                                        <div class="dropdown-divider"></div>
+                                    <!-- Dropdown Menu -->
+                                    <ul class="dropdown-menu w-100 shadow-lg border-light mt-1 {{ $showTpaDropdown ? 'show' : '' }}"
+                                        style="max-height: 250px; overflow-y: auto; display: {{ $showTpaDropdown ? 'block' : 'none' }}; z-index: 1060;">
                                         @forelse($tpas as $t)
                                         <li>
                                             <a class="dropdown-item small py-2 d-flex justify-content-between align-items-center"
                                                 href="javascript:void(0)"
                                                 wire:click="selectTpa({{ $t->id }}, '{{ $t->name }}')">
-                                                {{ $t->name }}
+                                                <span><i class="bi bi-building me-2 text-muted"></i> {{ $t->name }}</span>
                                                 @if($tpa_id == $t->id) <i class="bi bi-check-circle-fill text-primary"></i> @endif
                                             </a>
                                         </li>
                                         @empty
-                                        <li class="px-3 py-2 small text-muted">No TPAs found</li>
+                                        <li class="px-3 py-2 small text-muted text-center italic">No matches found</li>
                                         @endforelse
                                     </ul>
+
+                                    <!-- Backdrop to close dropdown -->
+                                    @if($showTpaDropdown)
+                                    <div wire:click="$set('showTpaDropdown', false)" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1050; background: transparent;"></div>
+                                    @endif
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <label class="small text-muted mb-1">Policy No</label>
-                                <input type="text" wire:model="insurance_id" class="form-control" placeholder="Policy ID">
+                                <label class="small text-muted mb-1">Policy / ID No</label>
+                                <input type="text" wire:model="insurance_id" class="form-control" placeholder="Optional">
                             </div>
                             <div class="col-md-6">
-                                <label class="small text-muted mb-1">Validity</label>
+                                <label class="small text-muted mb-1">TPA Validity</label>
                                 <input type="date" wire:model="tpa_validity" class="form-control">
                             </div>
                         </div>
@@ -183,4 +185,13 @@
             </div>
         </div>
     </form>
+    <style>
+        .x-small {
+            font-size: 11px;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+    </style>
 </div>

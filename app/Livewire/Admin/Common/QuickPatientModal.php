@@ -14,17 +14,21 @@ class QuickPatientModal extends Component
 
     // TPA Properties
     public $tpa_id, $tpa_validity, $tpa_search = '', $selected_tpa_name = 'Direct/Cash';
+    public $showTpaDropdown = false;
 
+    // Update your selectTpa method to close the dropdown
     public function selectTpa($id, $name)
     {
         $this->tpa_id = $id;
         $this->selected_tpa_name = $name;
         $this->tpa_search = '';
+        $this->showTpaDropdown = false; // Close dropdown on selection
+    }
 
-        // Reset validity if TPA is cleared
-        if (!$id) {
-            $this->tpa_validity = null;
-        }
+    // Optional: Open dropdown when typing
+    public function updatedTpaSearch()
+    {
+        $this->showTpaDropdown = true;
     }
 
     public function save()

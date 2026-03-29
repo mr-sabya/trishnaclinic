@@ -22,7 +22,8 @@ class Manage extends Component
 
     // Searchable TPA Properties
     public $tpa_search = '';
-    public $selected_tpa_name = 'Direct/Cash';
+    public $selected_tpa_name = 'No Referrer (Direct)';
+    public $showTpaDropdown = false; // Added to control dropdown manually
 
     // Age Helper Properties (YY - MM)
     public $age_year, $age_month;
@@ -33,13 +34,11 @@ class Manage extends Component
             $this->patientId = $id;
             $patient = Patient::with(['user', 'tpa'])->findOrFail($id);
 
-            // Map User Data
             $this->name = $patient->user->name;
             $this->phone = $patient->user->phone;
             $this->email = $patient->user->email;
             $this->mrn_display = $patient->mrn_number;
 
-            // Map Patient Data
             $this->guardian_name = $patient->guardian_name;
             $this->gender = $patient->gender instanceof Gender ? $patient->gender->value : $patient->gender;
             $this->blood_group = $patient->blood_group instanceof BloodGroup ? $patient->blood_group->value : $patient->blood_group;
@@ -51,15 +50,13 @@ class Manage extends Component
             $this->known_allergies = $patient->known_allergies;
             $this->remarks = $patient->remarks;
 
-            // Map TPA Data
             $this->tpa_id = $patient->tpa_id;
-            $this->selected_tpa_name = $patient->tpa ? $patient->tpa->name : 'Direct/Cash';
+            $this->selected_tpa_name = $patient->tpa ? $patient->tpa->name : 'No Referrer (Direct)';
 
             $this->insurance_id = $patient->insurance_id;
             $this->tpa_validity = $patient->tpa_validity ? $patient->tpa_validity->format('Y-m-d') : null;
             $this->existingPhoto = $patient->photo;
 
-            // Parse Age String
             if ($patient->age) {
                 preg_match('/(\d+)Y/', $patient->age, $years);
                 preg_match('/(\d+)M/', $patient->age, $months);
@@ -72,8 +69,16 @@ class Manage extends Component
     public function selectTpa($id, $name)
     {
         $this->tpa_id = $id;
-        $this->selected_tpa_name = $name;
-        $this->tpa_search = ''; // Reset search after selection
+        $this->selected_tpa_name = $name ?: 'No Referrer (Direct)';
+        $this->tpa_search = '';
+        $this->showTpaDropdown = false; // Close dropdown
+    }
+
+    public function updatedTpaSearch()
+    {
+        if (!empty($this->tpa_search)) {
+            $this->showTpaDropdown = true;
+        }
     }
 
     public function save()
@@ -137,7 +142,6 @@ class Manage extends Component
 
     public function render()
     {
-        // Filter TPAs based on search input
         $tpas = Tpa::where('status', true)
             ->when($this->tpa_search, function ($query) {
                 $query->where('name', 'like', '%' . $this->tpa_search . '%');
