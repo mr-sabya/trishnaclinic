@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Builder;
 
 class Doctor extends Model
 {
     protected $fillable = [
-        'name',
-        'phone',
-        'email',
+        'user_id',
         'gender',
         'photo',
         'address',
@@ -26,10 +24,16 @@ class Doctor extends Model
         'opd_hospital_fee',
         'ipd_doctor_fee',
         'ipd_hospital_fee',
-        'is_active'
+        'is_active',
+        'type' // 'permanent' or 'on_call'
     ];
 
     // --- Relationships ---
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function department(): BelongsTo
     {
@@ -41,4 +45,23 @@ class Doctor extends Model
         return $this->belongsTo(Specialist::class);
     }
 
+    // --- Accessors ---
+
+    // Allows you to call $doctor->name instead of $doctor->user->name
+    public function getNameAttribute()
+    {
+        return $this->user->name;
+    }
+
+    // --- Scopes ---
+
+    public function scopePermanent(Builder $query): Builder
+    {
+        return $query->where('type', 'permanent');
+    }
+
+    public function scopeOnCall(Builder $query): Builder
+    {
+        return $query->where('type', 'on_call');
+    }
 }

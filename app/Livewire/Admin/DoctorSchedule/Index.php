@@ -34,8 +34,13 @@ class Index extends Component
 
     public function render()
     {
-        $schedules = DoctorSchedule::with(['doctor', 'shift'])
-            ->whereHas('doctor', function($q) {
+        // Eager load doctor.user to get names and doctor.department for context
+        $schedules = DoctorSchedule::with(['doctor.user', 'doctor.department', 'shift'])
+            ->whereHas('doctor.user', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('phone', 'like', '%' . $this->search . '%');
+            })
+            ->orWhereHas('shift', function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%');
             })
             ->latest()
