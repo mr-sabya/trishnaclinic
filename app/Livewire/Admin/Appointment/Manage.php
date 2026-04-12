@@ -2,11 +2,10 @@
 
 namespace App\Livewire\Admin\Appointment;
 
-use App\Models\{Appointment, Patient, User, Doctor, GlobalShift, DoctorSchedule, PaymentMethod, Tpa};
+use App\Models\{Appointment, Patient, User, Doctor, GlobalShift, DoctorSchedule, PaymentMethod};
 use App\Enums\{AppointmentPriority, AppointmentStatus, Gender, BloodGroup, MaritalStatus, UserRole};
 use Livewire\{Component, WithFileUploads};
 use Illuminate\Support\Facades\{Hash, DB};
-use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class Manage extends Component
@@ -21,11 +20,12 @@ class Manage extends Component
     public $doctor_fees = 0, $hospital_fees = 0, $discount_percentage = 0, $net_amount = 0;
     public $message, $live_consult = false, $cheque_no, $cheque_date;
 
-    // --- Patient Search Properties ---
+    // --- Patient Search & Schedule Properties ---
     public $patient_search = '', $patient_results = [];
+    public $doctor_schedules = [];
     public $showPatientModal = false;
 
-    // --- Quick Add Patient Properties (Mirrors your Patient Manage) ---
+    // --- Quick Add Patient Properties ---
     public $name, $phone, $email, $guardian_name, $gender_val, $blood_group, $marital_status;
     public $date_of_birth, $identification_number, $address, $age_year, $age_month, $age_day;
 
@@ -40,10 +40,10 @@ class Manage extends Component
             $this->patient_search = $app->patient->user->name;
             $this->status = $app->status->value;
             $this->priority = $app->priority->value;
+            $this->fetchSchedules();
         }
     }
 
-    // --- Patient Search Logic ---
     public function updatedPatientSearch($query)
     {
         if (strlen($query) < 2) { $this->patient_results = []; return; }
@@ -60,11 +60,53 @@ class Manage extends Component
         $this->patient_results = [];
     }
 
-    // --- Age/DOB Logic (From your provided code) ---
+    // --- Fee & Schedule Logic ---
+    public function updatedDoctorId($value)
+    {
+        if ($value) {
+            $doctor = Doctor::find($value);
+            $this->doctor_fees = $doctor->appointment_doctor_fee ?? 0;
+            $this->hospital_fees = $doctor->appointment_hospital_fee ?? 0;
+            $this->calculateNet();
+            $this->fetchSchedules();
+        } else {
+            $this->doctor_schedules = [];
+        }
+    }
+
+    public function updatedGlobalShiftId()
+    {
+        $this->fetchSchedules();
+    }
+
+    private function fetchSchedules()
+    {
+        if (!$this->doctor_id) return;
+
+        $query = DoctorSchedule::where('doctor_id', $this->doctor_id)->where('status', true);
+        
+        if ($this->global_shift_id) {
+            $query->where('global_shift_id', $this->global_shift_id);
+        }
+
+        $this->doctor_schedules = $query->with('shift')->get();
+
+        // Auto-select if only one schedule exists
+        if (count($this->doctor_schedules) === 1) {
+            $this->doctor_schedule_id = $this->doctor_schedules[0]->id;
+        }
+    }
+
+    public function updatedDiscountPercentage() { $this->calculateNet(); }
+
+    public function calculateNet() {
+        $total = (float)$this->hospital_fees + (float)$this->doctor_fees;
+        $this->net_amount = $total - ($total * (float)$this->discount_percentage / 100);
+    }
+
+    // --- Age/DOB Logic ---
     public function updatedDateOfBirth($value) { if ($value) $this->calculateAgeFromDob(); }
     public function updatedAgeYear() { $this->calculateDobFromAge(); }
-    public function updatedAgeMonth() { $this->calculateDobFromAge(); }
-    public function updatedAgeDay() { $this->calculateDobFromAge(); }
 
     private function calculateAgeFromDob() {
         if ($this->date_of_birth) {
@@ -77,25 +119,6 @@ class Manage extends Component
         $this->date_of_birth = now()->subYears((int)$this->age_year)->subMonths((int)$this->age_month)->subDays((int)$this->age_day)->format('Y-m-d');
     }
 
-    // --- Fee Logic ---
-    public function updatedDoctorId($value) {
-        if ($value) {
-            $doctor = Doctor::find($value);
-            $this->doctor_fees = $doctor->appointment_doctor_fee ?? 0;
-            $this->hospital_fees = $doctor->appointment_hospital_fee ?? 0;
-            $this->doctor_schedule_id = DoctorSchedule::where('doctor_id', $value)->first()?->id;
-            $this->calculateNet();
-        }
-    }
-
-    public function updatedDiscountPercentage() { $this->calculateNet(); }
-
-    public function calculateNet() {
-        $total = (float)$this->hospital_fees;
-        $this->net_amount = $total - ($total * (float)$this->discount_percentage / 100);
-    }
-
-    // --- Quick Add Patient Save ---
     public function saveQuickPatient()
     {
         $this->validate([
@@ -124,10 +147,8 @@ class Manage extends Component
                 'marital_status' => $this->marital_status,
                 'address' => $this->address,
             ]);
-
             $this->selectPatient($patient->id, $user->name);
         });
-
         $this->showPatientModal = false;
     }
 
@@ -136,6 +157,7 @@ class Manage extends Component
         $this->validate([
             'patient_id' => 'required',
             'doctor_id' => 'required',
+            'doctor_schedule_id' => 'required',
             'date' => 'required|date',
             'global_shift_id' => 'required',
             'payment_method_id' => 'required',
