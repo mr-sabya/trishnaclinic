@@ -36,8 +36,8 @@
                     <tr>
                         <td class="fw-bold">{{ $appt->appointment_number }}</td>
                         <td>
-                            <div class="fw-bold">{{ $appt->patient->name }}</div>
-                            <small class="text-muted">{{ $appt->patient->phone }}</small>
+                            <div class="fw-bold">{{ $appt->patient['user']['name'] }}</div>
+                            <small class="text-muted">{{ $appt->patient['user']['phone'] }}</small>
                         </td>
                         <td>{{ $appt->doctor->name }}</td>
                         <td>
