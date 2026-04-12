@@ -9,7 +9,7 @@
             <p class="text-muted">Welcome back, Admin. Here is what's happening today.</p>
         </div>
         <div>
-            <a href="{{ route('admin.appointment.create') }}" wire:navigate class="btn btn-primary shadow-sm">
+            <a href="{{ route('admin.opd.create') }}" wire:navigate class="btn btn-primary shadow-sm">
                 <i class="fas fa-plus me-2"></i>New Appointment
             </a>
         </div>
