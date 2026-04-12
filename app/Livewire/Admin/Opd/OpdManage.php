@@ -263,7 +263,8 @@ class OpdManage extends Component
             ]);
 
             DB::commit();
-            return redirect()->route('admin.opd.index')->with('success', 'OPD Admission Successful.');
+            session()->flash('success', 'OPD Admission created successfully!');
+            return $this->redirect(route('admin.opd.show', $admission->id), navigate: true);
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Error: ' . $e->getMessage());
