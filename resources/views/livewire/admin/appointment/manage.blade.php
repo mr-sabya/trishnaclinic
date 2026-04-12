@@ -56,7 +56,7 @@
                         <label class="form-label fw-bold small">Standard Fees</label>
                         <div class="input-group">
                             <span class="input-group-text">৳</span>
-                            <input type="text" value="{{ number_format($doctor_fees + $hospital_fees, 2) }}" class="form-control bg-light" readonly>
+                            <input type="text" value="{{ number_format($hospital_fees, 2) }}" class="form-control bg-light" readonly>
                         </div>
                     </div>
                     <div class="col-md-2">

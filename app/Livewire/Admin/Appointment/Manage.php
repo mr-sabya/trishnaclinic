@@ -36,6 +36,7 @@ class Manage extends Component
             $this->appointmentId = $id;
             $app = Appointment::findOrFail($id);
             $this->fill($app->toArray());
+            $this->date = $app->date->format('Y-m-d');
             $this->patient_search = $app->patient->user->name;
             $this->status = $app->status->value;
             $this->priority = $app->priority->value;
@@ -90,7 +91,7 @@ class Manage extends Component
     public function updatedDiscountPercentage() { $this->calculateNet(); }
 
     public function calculateNet() {
-        $total = (float)$this->doctor_fees + (float)$this->hospital_fees;
+        $total = (float)$this->hospital_fees;
         $this->net_amount = $total - ($total * (float)$this->discount_percentage / 100);
     }
 
