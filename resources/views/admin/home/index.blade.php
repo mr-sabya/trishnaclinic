@@ -9,9 +9,9 @@
             <p class="text-muted">Welcome back, Admin. Here is what's happening today.</p>
         </div>
         <div>
-            <button class="btn btn-primary shadow-sm">
+            <a href="{{ route('admin.appointment.create') }}" wire:navigate class="btn btn-primary shadow-sm">
                 <i class="fas fa-plus me-2"></i>New Appointment
-            </button>
+            </a>
         </div>
     </div>
 
@@ -67,11 +67,11 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0 bg-warning-soft p-3 rounded-3">
-                            <i class="fas fa-dollar-sign fa-2x text-warning"></i>
+                            <i class="fas fa-wallet fa-2x text-warning"></i>
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="text-muted mb-1">Revenue (MTD)</h6>
-                            <h3 class="mb-0 fw-bold">$12,450</h3>
+                            <h3 class="mb-0 fw-bold">৳12,450</h3>
                         </div>
                     </div>
                 </div>
