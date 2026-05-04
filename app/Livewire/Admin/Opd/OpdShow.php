@@ -48,7 +48,7 @@ class OpdShow extends Component
     public $pathology_category_id, $pathology_test_id;
     public $radiology_category_id, $radiology_test_id;
 
-    // Status Update Properties
+    // Status Properties
     public $editingTestType, $editingTestId, $newStatus;
     public $statusOptions = ['Pending', 'In Progress', 'Collected', 'Completed', 'Cancelled'];
 
@@ -56,6 +56,14 @@ class OpdShow extends Component
     {
         $this->opdId = $id;
         $this->payment_method_id = PaymentMethod::where('is_default', true)->first()?->id;
+    }
+
+    // --- Modal Control ---
+    public function openTestModal($type)
+    {
+        $this->pathology_category_id = $this->pathology_test_id = null;
+        $this->radiology_category_id = $this->radiology_test_id = null;
+        $type === 'pathology' ? $this->showPathologyModal = true : $this->showRadiologyModal = true;
     }
 
     // --- Charge Logic ---
@@ -104,10 +112,10 @@ class OpdShow extends Component
         ]);
         $this->reset(['showChargeModal', 'charge_id', 'charge_category_id']);
         $this->resetChargeFields();
-        session()->flash('success', 'Charge added successfully.');
+        session()->flash('success', 'Charge added.');
     }
 
-    // --- Symptom Logic (With Quick Add) ---
+    // --- Symptom Logic (Full) ---
     public function updatedSymptomTypeId()
     {
         $this->symptom_title_id = null;
@@ -118,17 +126,16 @@ class OpdShow extends Component
         $newOption = SymptomTitle::create(['symptom_type_id' => $this->symptom_type_id, 'title' => $this->new_symptom_title_name]);
         $this->symptom_title_id = $newOption->id;
         $this->new_symptom_title_name = '';
-        session()->flash('success', 'Symptom title added to master list.');
     }
     public function addSymptom()
     {
         $this->validate(['symptom_type_id' => 'required', 'symptom_title_id' => 'required']);
         OpdAdmissionSymptom::create(['opd_admission_id' => $this->opdId, 'symptom_type_id' => $this->symptom_type_id, 'symptom_title_id' => $this->symptom_title_id]);
         $this->reset(['showSymptomModal', 'symptom_type_id', 'symptom_title_id']);
-        session()->flash('success', 'Symptom added.');
+        session()->flash('success', 'Symptom recorded.');
     }
 
-    // --- Pathology & Radiology Logic ---
+    // --- Investigation Logic ---
     public function updatedPathologyCategoryId()
     {
         $this->pathology_test_id = null;
@@ -139,10 +146,10 @@ class OpdShow extends Component
         $test = PathologyTest::with('charge.tax')->findOrFail($this->pathology_test_id);
         DB::transaction(function () use ($test) {
             OpdPathologyTest::create(['opd_admission_id' => $this->opdId, 'pathology_test_id' => $test->id, 'test_date' => now()]);
-            $this->billInvestigation($test);
+            $this->autoBill($test);
         });
         $this->reset(['showPathologyModal', 'pathology_category_id', 'pathology_test_id']);
-        session()->flash('success', 'Pathology test added and billed.');
+        session()->flash('success', 'Pathology ordered.');
     }
 
     public function updatedRadiologyCategoryId()
@@ -155,13 +162,13 @@ class OpdShow extends Component
         $test = RadiologyTest::with('charge.tax')->findOrFail($this->radiology_test_id);
         DB::transaction(function () use ($test) {
             OpdRadiologyTest::create(['opd_admission_id' => $this->opdId, 'radiology_test_id' => $test->id, 'test_date' => now()]);
-            $this->billInvestigation($test);
+            $this->autoBill($test);
         });
         $this->reset(['showRadiologyModal', 'radiology_category_id', 'radiology_test_id']);
-        session()->flash('success', 'Radiology test added and billed.');
+        session()->flash('success', 'Radiology ordered.');
     }
 
-    private function billInvestigation($test)
+    private function autoBill($test)
     {
         if ($test->charge) {
             $tax = ($test->charge->standard_charge * ($test->charge->tax->percentage ?? 0)) / 100;
@@ -177,7 +184,7 @@ class OpdShow extends Component
         }
     }
 
-    // --- Status Edit Logic ---
+    // --- Status Edit ---
     public function editTestStatus($type, $id)
     {
         $this->editingTestType = $type;
@@ -190,15 +197,25 @@ class OpdShow extends Component
     {
         $model = $this->editingTestType === 'pathology' ? OpdPathologyTest::class : OpdRadiologyTest::class;
         $model::where('id', $this->editingTestId)->update(['status' => $this->newStatus]);
-        $this->reset(['showStatusModal', 'editingTestType', 'editingTestId', 'newStatus']);
-        session()->flash('success', 'Investigation status updated.');
+        $this->reset(['showStatusModal', 'editingTestType', 'editingTestId']);
+        session()->flash('success', 'Status updated.');
     }
 
-    // --- Payment Logic ---
+    // --- Payment ---
     public function addPayment()
     {
-        $this->validate(['paid_amount' => 'required|numeric|min:1', 'payment_method_id' => 'required']);
-        OpdAdmissionPayment::create(['opd_admission_id' => $this->opdId, 'payment_method_id' => $this->payment_method_id, 'paid_amount' => $this->paid_amount, 'cheque_no' => $this->cheque_no, 'cheque_date' => $this->cheque_date]);
+        $this->validate([
+            'paid_amount' => 'required|numeric|min:1',
+            'payment_method_id' => 'required'
+        ]);
+
+        OpdAdmissionPayment::create([
+            'opd_admission_id' => $this->opdId,
+            'payment_method_id' => $this->payment_method_id,
+            'paid_amount' => $this->paid_amount,
+            'cheque_no' => $this->cheque_no,
+            'cheque_date' => $this->cheque_date
+        ]);
         $this->reset(['showPaymentModal', 'paid_amount', 'cheque_no', 'cheque_date']);
         session()->flash('success', 'Payment recorded.');
     }
