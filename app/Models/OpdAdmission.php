@@ -65,6 +65,23 @@ class OpdAdmission extends Model
         return $this->hasMany(OpdAdmissionPayment::class);
     }
 
+
+    /**
+     * Relationship: Pathology tests ordered during this admission
+     */
+    public function pathologyTests(): HasMany
+    {
+        return $this->hasMany(OpdPathologyTest::class);
+    }
+
+    /**
+     * Relationship: Radiology tests ordered during this admission
+     */
+    public function radiologyTests(): HasMany
+    {
+        return $this->hasMany(OpdRadiologyTest::class);
+    }
+
     // --- Business Logic Helpers ---
 
     /**
